@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>Services</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BaseApiModel\BaseApiModel.csproj" />
+      <ProjectReference Include="..\PictureMessages\PictureMessages.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Neo4jClient" Version="4.1.23" />
+    </ItemGroup>
+
+</Project>

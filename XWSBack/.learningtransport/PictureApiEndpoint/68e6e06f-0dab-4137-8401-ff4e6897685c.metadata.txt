@@ -1,0 +1,14 @@
+{
+  "NServiceBus.MessageId": "934e2025-dcc9-42a9-908d-ae7200fefd37",
+  "NServiceBus.MessageIntent": "Send",
+  "NServiceBus.ConversationId": "97f66ebd-70d4-4cfe-a84a-ae7200fefd3b",
+  "NServiceBus.CorrelationId": "934e2025-dcc9-42a9-908d-ae7200fefd37",
+  "NServiceBus.ReplyToAddress": "BaseApiEndpoint",
+  "NServiceBus.OriginatingMachine": "DESKTOP-7CFBHHG",
+  "NServiceBus.OriginatingEndpoint": "BaseApiEndpoint",
+  "$.diagnostics.originating.hostid": "84b34afc61aa880a1bd07fdd5b38b3d7",
+  "NServiceBus.ContentType": "text\/xml",
+  "NServiceBus.EnclosedMessageTypes": "PictureMessages.SaveUserPicture, PictureMessages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "NServiceBus.Version": "7.7.0",
+  "NServiceBus.TimeSent": "2022-04-09 15:28:23:278657 Z"
+}
