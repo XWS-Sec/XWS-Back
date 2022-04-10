@@ -67,7 +67,7 @@ namespace BaseApi
             var graphClient = new BoltGraphClient(new Uri(uri), user, pass);
             graphClient.ConnectAsync();
 
-            services.AddScoped<IGraphClient, BoltGraphClient>(s => graphClient);
+            services.AddSingleton<IGraphClient, BoltGraphClient>(s => graphClient);
             
             var allServices = typeof(CreateUserNodeService).Assembly
                 .GetTypes()

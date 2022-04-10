@@ -22,8 +22,7 @@ namespace BaseApi.Controllers
         [HttpPost("api/login")]
         public async Task<IActionResult> Login(LoginUserDto userDto)
         {
-            var result = await _signInManager.PasswordSignInAsync(userDto.Username, userDto.Password, false, false)
-                .ConfigureAwait(false);
+            var result = await _signInManager.PasswordSignInAsync(userDto.Username, userDto.Password, false, false);
             return result.Succeeded
                 ? Ok(await _userManager.FindByNameAsync(userDto.Username))
                 : BadRequest($"Incorrect password");

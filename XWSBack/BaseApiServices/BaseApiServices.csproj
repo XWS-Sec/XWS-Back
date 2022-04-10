@@ -7,7 +7,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BaseApiModel\BaseApiModel.csproj" />
-      <ProjectReference Include="..\PictureMessages\PictureMessages.csproj" />
     </ItemGroup>
 
     <ItemGroup>

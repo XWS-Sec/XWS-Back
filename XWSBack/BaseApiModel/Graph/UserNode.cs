@@ -4,6 +4,6 @@ namespace BaseApiModel.Graph
 {
     public class UserNode
     {
-        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
     }
 }
