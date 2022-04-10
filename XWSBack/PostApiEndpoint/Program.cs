@@ -9,9 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using NServiceBus.Routing;
 using Shared;
+using EndpointInstances = Shared.EndpointInstances;
 
-namespace PictureApiEndpoint
+namespace PostApiEndpoint
 {
     public class Program
     {
@@ -44,8 +46,9 @@ namespace PictureApiEndpoint
                 })
                 .UseNServiceBus(context =>
                 {
-                    var endpointConfig = new EndpointConfiguration(EndpointInstances.PictureApiEndpoint);
-                    var routing = endpointConfig.Configure(EndpointInstances.PictureApiEndpoint);
+                    var endpointConfig = new EndpointConfiguration(EndpointInstances.PostApiEndpoint);
+                    var routing = endpointConfig.Configure(EndpointInstances.PostApiEndpoint);
+
                     return endpointConfig;
                 });
     }

@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using BaseApiModel.Graph;
 using Neo4jClient;
-using NServiceBus;
-using Services.PictureServices;
 
 namespace Services.UserServices
 {
@@ -20,7 +18,7 @@ namespace Services.UserServices
         {
             var newUser = new UserNode()
             {
-                Id = id
+                UserId = id
             };
 
             await _client.Cypher.Create("(u:UserNode $user)")
