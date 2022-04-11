@@ -17,12 +17,16 @@ namespace BaseApi.Controllers
         private readonly CreateFollowLinkService _createFollowLinkService;
         private readonly UserManager<User> _userManager;
         private readonly GetFollowStatsService _getFollowStatsService;
+        private readonly FollowRequestService _followRequestService;
+        private readonly UnfollowService _unfollowService;
 
-        public FollowController(CreateFollowLinkService createFollowLinkService, UserManager<User> userManager, GetFollowStatsService getFollowStatsService)
+        public FollowController(CreateFollowLinkService createFollowLinkService, UserManager<User> userManager, GetFollowStatsService getFollowStatsService, FollowRequestService followRequestService, UnfollowService unfollowService)
         {
             _createFollowLinkService = createFollowLinkService;
             _userManager = userManager;
             _getFollowStatsService = getFollowStatsService;
+            _followRequestService = followRequestService;
+            _unfollowService = unfollowService;
         }
         
         [HttpGet]
@@ -50,6 +54,42 @@ namespace BaseApi.Controllers
             {
                 return BadRequest(e.Message);
             }
+            return Ok();
+        }
+
+        [HttpPut("{followRequestFromId}/{isAccepted}")]
+        public async Task<IActionResult> Put([FromRoute] Guid followRequestFromId, [FromRoute] bool isAccepted)
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+
+                if (isAccepted)
+                    await _followRequestService.Accept(Guid.Parse(userId), followRequestFromId);
+                else
+                    await _followRequestService.Decline(Guid.Parse(userId), followRequestFromId);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete("{userToUnfollowId}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid userToUnfollowId)
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                await _unfollowService.Unfollow(Guid.Parse(userId), userToUnfollowId);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
             return Ok();
         }
     }
