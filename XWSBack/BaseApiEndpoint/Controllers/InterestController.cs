@@ -13,39 +13,48 @@ namespace BaseApi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [TypeFilter(typeof(CustomAuthorizeAttribute))]
-    public class SkillController : ControllerBase
+    public class InterestController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
         private readonly SkillManagementService _skillManagementService;
 
-        public SkillController(UserManager<User> userManager, SkillManagementService skillManagementService)
+        public InterestController(SkillManagementService skillManagementService, UserManager<User> userManager)
         {
-            _userManager = userManager;
             _skillManagementService = skillManagementService;
+            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var userId = _userManager.GetUserId(User);
-            var skills = await _skillManagementService.GetSkills(Guid.Parse(userId), "hasSkill");
-
-            return Ok(skills.Select(x => x.Name));
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Post(AdjustSkillsDto skillsDto)
-        {
             try
             {
                 var userId = _userManager.GetUserId(User);
-                await _skillManagementService.Handle(Guid.Parse(userId), skillsDto.NewSkills, skillsDto.SkillsToRemove, "hasSkill");
+
+                var interests = await _skillManagementService.GetSkills(Guid.Parse(userId), "hasInterest");
+                
+                return Ok(interests.Select(x => x.Name));
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
-            
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Post(AdjustSkillsDto interestDto)
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+
+                await _skillManagementService.Handle(Guid.Parse(userId), interestDto.NewSkills,
+                    interestDto.SkillsToRemove, "hasInterest");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
             return Ok();
         }
     }
