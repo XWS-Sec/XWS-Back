@@ -66,5 +66,15 @@ namespace Services.PictureServices
                 File.Delete($"{postPics}\\{postId}");   
             }
         }
+
+        public void ChangePostPictureName(Guid oldPostId, Guid newPostId)
+        {
+            var postPics = Environment.GetEnvironmentVariable("POST_PIC_DIR") ?? @"%USERPROFILE%\.xws-post-pics";
+            postPics = Environment.ExpandEnvironmentVariables(postPics);
+            if (File.Exists($"{postPics}\\{oldPostId}"))
+            {
+                File.Move($"{postPics}\\{oldPostId}", $"{postPics}\\{newPostId}");   
+            }
+        }
     }
 }

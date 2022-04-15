@@ -41,7 +41,7 @@ namespace PostApiEndpoint
                 services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive(rabbitMqHostname));
             }
             
-            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+            BsonSerializer.RegisterSerializer(typeof(Guid), new GuidSerializer(BsonType.String));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
