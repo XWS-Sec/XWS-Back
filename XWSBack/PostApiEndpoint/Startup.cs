@@ -1,9 +1,16 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
+using PostServiceModel;
+using Shared;
 
 namespace PostApiEndpoint
 {
@@ -24,6 +31,17 @@ namespace PostApiEndpoint
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PostApiEndpoint", Version = "v1" });
             });
+
+            services.AddSingleton<IMongoClient, MongoClient>(s => SetupMongoDb.CreateClient<Post>("PostApi", "Posts"));
+            
+            var rabbitMq = Environment.GetEnvironmentVariable("USE_RMQ");
+            if (!string.IsNullOrEmpty(rabbitMq))
+            {
+                var rabbitMqHostname = Environment.GetEnvironmentVariable("RMQ_HOST") ?? "rabbitmq";
+                services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive(rabbitMqHostname));
+            }
+            
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
