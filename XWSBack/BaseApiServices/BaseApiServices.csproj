@@ -7,10 +7,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BaseApiModel\BaseApiModel.csproj" />
+      <ProjectReference Include="..\PostMessages\PostMessages.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Neo4jClient" Version="4.1.23" />
+      <PackageReference Include="NServiceBus" Version="7.7.0" />
     </ItemGroup>
 
 </Project>

@@ -11,6 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PostEndpointModel\PostEndpointModel.csproj" />
+      <ProjectReference Include="..\PostMessages\PostMessages.csproj" />
       <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 

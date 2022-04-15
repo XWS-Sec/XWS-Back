@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
+using PostMessages;
 using Shared;
 
 namespace BaseApi
@@ -42,6 +43,8 @@ namespace BaseApi
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.BaseApiEndpoint);
                     var routing = endpointConfig.Configure(EndpointInstances.BaseApiEndpoint);
 
+                    routing.RouteToEndpoint(typeof(NewPostRequest), EndpointInstances.PostApiEndpoint);
+                    
                     return endpointConfig;
                 });
     }

@@ -48,7 +48,7 @@ namespace BaseApi.Controllers
                 using var ms = new MemoryStream();
                 await newUser.Picture.CopyToAsync(ms);
             
-                _pictureService.SavePicture(mappedUser.Id, ms.ToArray());
+                _pictureService.SaveUserPicture(mappedUser.Id, ms.ToArray());
             }
             return Ok(mappedUser);
         }
