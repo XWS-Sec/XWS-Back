@@ -13,13 +13,13 @@ namespace Services.PostServices
         private readonly PictureService _pictureService;
         private readonly IMessageSession _messageSession;
 
-        public CreatePostService(UserManager<User> userManager, PictureService pictureService, IMessageSession messageSession)
+        public CreatePostService(PictureService pictureService, IMessageSession messageSession)
         {
             _pictureService = pictureService;
             _messageSession = messageSession;
         }
 
-        public async Task<Guid> Create(User user, string text, byte[] picture)
+        public async Task<Guid> Create(Guid userId, string text, byte[] picture)
         {
             var newPostId = Guid.NewGuid();
             var hasPicture = _pictureService.SavePostPicture(newPostId, picture);
@@ -27,7 +27,7 @@ namespace Services.PostServices
             var request = new NewPostRequest()
             {
                 PostId = newPostId,
-                UserId = user.Id,
+                UserId = userId,
                 Text = text,
                 HasPicture = hasPicture
             };

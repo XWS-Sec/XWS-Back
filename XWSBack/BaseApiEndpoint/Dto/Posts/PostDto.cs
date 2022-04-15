@@ -6,5 +6,6 @@ namespace BaseApi.Dto.Posts
     {
         public IFormFile Picture { get; set; }
         public string Text { get; set; }
+        public bool RemovedPicture { get; set; }
     }
 }

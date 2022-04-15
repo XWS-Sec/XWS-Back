@@ -44,6 +44,7 @@ namespace BaseApi
                     var routing = endpointConfig.Configure(EndpointInstances.BaseApiEndpoint);
 
                     routing.RouteToEndpoint(typeof(NewPostRequest), EndpointInstances.PostApiEndpoint);
+                    routing.RouteToEndpoint(typeof(EditPostRequest), EndpointInstances.PostApiEndpoint);
                     
                     return endpointConfig;
                 });
