@@ -29,7 +29,8 @@ namespace PostApiEndpoint.Handlers
                     Id = message.PostId,
                     PosterId = message.UserId,
                     Text = message.Text,
-                    HasPicture = message.HasPicture
+                    HasPicture = message.HasPicture,
+                    CreatedDate = DateTime.Now
                 });
             }
             catch (Exception e)
