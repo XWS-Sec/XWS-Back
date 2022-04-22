@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>BaseApi.Services</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\BaseApi.Model\BaseApi.Model.csproj" />
+        <ProjectReference Include="..\Posts.Messages\Posts.Messages.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Neo4jClient" Version="4.1.23" />
+        <PackageReference Include="NServiceBus" Version="7.7.0" />
+    </ItemGroup>
+
+</Project>
