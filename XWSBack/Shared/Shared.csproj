@@ -5,10 +5,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Json.Net" Version="1.0.33" />
       <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.6" />
       <PackageReference Include="NServiceBus" Version="7.7.0" />
+      <PackageReference Include="NServiceBus.Metrics.ServiceControl" Version="3.0.6" />
+      <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="2.3.0" />
       <PackageReference Include="NServiceBus.RabbitMQ" Version="6.1.1" />
-      <PackageReference Include="NServiceBus.Storage.MongoDB" Version="2.2.0" />
+      <PackageReference Include="NServiceBus.Storage.MongoDB" Version="2.0.0" />
     </ItemGroup>
 
 </Project>

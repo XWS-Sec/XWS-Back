@@ -1,7 +1,12 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using NServiceBus;
-using NServiceBus.Configuration.AdvancedExtensibility;
+using Shared.Custom;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Shared
 {
@@ -9,6 +14,19 @@ namespace Shared
     {
         public static RoutingSettings Configure(this EndpointConfiguration endpointConfig, string endpointName)
         {
+            endpointConfig.AuditProcessedMessagesTo("audit");
+            endpointConfig.SendFailedMessagesTo("error");
+
+            var databus = endpointConfig.UseDataBus<FileShareDataBus>();
+            databus.BasePath(Environment.GetEnvironmentVariable("DATABUS_PATH") ?? "C:\\NServiceBusFileShare");
+
+            var conventions = endpointConfig.Conventions();
+            conventions.DefiningCommandsAs(t => typeof(ICustomCommand).IsAssignableFrom(t));
+            conventions.DefiningEventsAs(t => typeof(ICustomEvent).IsAssignableFrom(t));
+            conventions.DefiningMessagesAs(t => typeof(ICustomMessage).IsAssignableFrom(t));
+            conventions.DefiningDataBusPropertiesAs(t =>
+                t.GetCustomAttributes(typeof(CustomDataBusAttribute), false).Length > 0);
+            
             var rabbitMq = Environment.GetEnvironmentVariable("USE_RMQ");
             TransportExtensions trasport = null;
 
