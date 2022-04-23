@@ -41,6 +41,8 @@ namespace Posts.Handlers
                     {
                         services.AddSingleton(serviceInstance);
                     }
+
+                    services.AddAutoMapper(typeof(Program));
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.PostHandlers);

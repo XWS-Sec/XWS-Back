@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace AgentApiModel
+namespace BaseApi.Messages.Dtos
 {
-    public class CompanyComment
+    public class CommentNotificationDto
     {
+        public Guid CommenterId { get; set; }
         public string Text { get; set; }
-        public Guid PosterId { get; set; }
         public DateTime DateCreated { get; set; }
     }
 }

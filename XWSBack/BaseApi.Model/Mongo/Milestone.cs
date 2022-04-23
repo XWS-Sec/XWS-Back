@@ -2,12 +2,12 @@
 
 namespace BaseApi.Model.Mongo
 {
-    public class Experience
+    public class Milestone
     {
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
-        public string JobTitle { get; set; }
-        public string CompanyName { get; set; }
+        public string Title { get; set; }
+        public string OrganizationName { get; set; }
         public string Description { get; set; }
     }
 }

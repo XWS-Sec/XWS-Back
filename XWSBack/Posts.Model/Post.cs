@@ -10,7 +10,7 @@ namespace Posts.Model
         public string Text { get; set; }
         public Guid PosterId { get; set; }
         public bool HasPicture { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime DateCreated { get; set; }
 
         public IList<Guid> Liked { get; set; }
         public IList<Guid> Disliked { get; set; }
