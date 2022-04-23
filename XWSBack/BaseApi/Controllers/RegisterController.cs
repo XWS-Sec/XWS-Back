@@ -4,7 +4,6 @@ using AutoMapper;
 using BaseApi.Dto;
 using BaseApi.Model.Mongo;
 using BaseApi.Services.PictureServices;
-using BaseApi.Services.UserServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NServiceBus;

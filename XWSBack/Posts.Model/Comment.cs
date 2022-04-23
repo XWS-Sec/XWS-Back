@@ -6,6 +6,6 @@ namespace Posts.Model
     {
         public Guid CommenterId { get; set; }
         public string Text { get; set; }
-        public DateTime CreatedDateTime { get; set; }
+        public DateTime DateCreated { get; set; }
     }
 }

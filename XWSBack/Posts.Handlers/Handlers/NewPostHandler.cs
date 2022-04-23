@@ -34,7 +34,7 @@ namespace Posts.Handlers.Handlers
             {
                 Id = message.PostId,
                 Text = message.Text,
-                CreatedDate = DateTime.Now,
+                DateCreated = DateTime.Now,
                 HasPicture = message.HasPicture,
                 PosterId = message.UserId
             });

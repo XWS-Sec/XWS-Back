@@ -7,6 +7,7 @@ using BaseApi.Messages;
 using BaseApi.Model.Mongo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using NServiceBus;
 
 namespace BaseApi.Controllers
@@ -25,6 +26,21 @@ namespace BaseApi.Controllers
             _session = session;
         }
 
+        [HttpGet("{page}")]
+        public async Task<IActionResult> Get(int page, Guid specificUser)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+            await _session.SendLocal(new BeginGetPostsRequest()
+            {
+                Page = page,
+                CorrelationId = Guid.NewGuid(),
+                UserId = userId,
+                RequestedUserId = specificUser
+            }).ConfigureAwait(false);
+            
+            return Ok();
+        }
+        
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] PostDto newPost)
         {

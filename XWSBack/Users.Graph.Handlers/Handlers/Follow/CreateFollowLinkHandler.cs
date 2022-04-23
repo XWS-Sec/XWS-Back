@@ -39,7 +39,7 @@ namespace Users.Graph.Handlers.Handlers.Follow
             {
                 await _followLinkService.CreateLinkBetweenUsers(message.Sender, message.Receiver, "followRequest", new FollowRequest()
                 {
-                    CreatedDate = DateTime.Now,
+                    DateCreated = DateTime.Now,
                     FollowRequestId = Guid.NewGuid()
                 });
             }
@@ -47,7 +47,7 @@ namespace Users.Graph.Handlers.Handlers.Follow
             {
                 await _followLinkService.CreateLinkBetweenUsers(message.Sender, message.Receiver, "follows", new FollowLink()
                 {
-                    CreatedDate = DateTime.Now,
+                    DateCreated = DateTime.Now,
                     FollowId = Guid.NewGuid()
                 });
             }

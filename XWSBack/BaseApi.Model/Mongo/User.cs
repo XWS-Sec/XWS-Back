@@ -13,7 +13,7 @@ namespace BaseApi.Model.Mongo
         public bool IsPrivate { get; set; }
         public string Gender { get; set; }
 
-        public IList<Experience> Experiences { get; set; }
+        public IList<Milestone> Experiences { get; set; }
         public NotificationConfiguration NotificationConfiguration { get; set; }
     }
 }

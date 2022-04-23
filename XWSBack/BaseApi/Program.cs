@@ -56,6 +56,7 @@ namespace BaseApi
                     
                     routing.RouteToEndpoint(typeof(NewPostRequest), EndpointInstances.PostHandlers);
                     routing.RouteToEndpoint(typeof(EditPostRequest), EndpointInstances.PostHandlers);
+                    routing.RouteToEndpoint(typeof(GetPostsRequest), EndpointInstances.PostHandlers);
 
                     return endpointConfig;
                 });
