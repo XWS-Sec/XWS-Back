@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using Chats.Messages;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
@@ -57,6 +58,8 @@ namespace BaseApi
                     routing.RouteToEndpoint(typeof(NewPostRequest), EndpointInstances.PostHandlers);
                     routing.RouteToEndpoint(typeof(EditPostRequest), EndpointInstances.PostHandlers);
                     routing.RouteToEndpoint(typeof(GetPostsRequest), EndpointInstances.PostHandlers);
+                    
+                    routing.RouteToEndpoint(typeof(AddMessageRequest), EndpointInstances.ChatHandlers);
 
                     return endpointConfig;
                 });

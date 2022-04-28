@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Chats.Model;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,13 +32,14 @@ namespace Chats.Handlers
                 })
                 .ConfigureServices(services =>
                 {
-                    var rabbitMq = Environment.GetEnvironmentVariable("USE_RMQ");
-                    if (!string.IsNullOrEmpty(rabbitMq))
-                    {
-                        var rabbitMqHostname = Environment.GetEnvironmentVariable("RMQ_HOST") ?? "rabbitmq";
-                        services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive(rabbitMqHostname));
-                    }
+                    var serviceInstances = typeof(Program).Assembly.GetTypes()
+                        .Where(x => x.Namespace.EndsWith("Services") && x.Name.EndsWith("Service"));
 
+                    foreach (var serviceInstance in serviceInstances)
+                    {
+                        services.AddSingleton(serviceInstance);
+                    }
+                    
                     services.AddSingleton<IMongoClient, MongoClient>(s => SetupMongoDb.CreateClient<Chat>("ChatsHandlers", "Chats"));
                     BsonSerializer.RegisterSerializer(typeof(Guid), new GuidSerializer(BsonType.String));
                 }).UseNServiceBus(ctx =>

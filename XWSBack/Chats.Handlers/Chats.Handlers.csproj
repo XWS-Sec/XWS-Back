@@ -11,8 +11,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Chats.Messages\Chats.Messages.csproj" />
       <ProjectReference Include="..\Chats.Model\Chats.Model.csproj" />
       <ProjectReference Include="..\Shared\Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services" />
     </ItemGroup>
 
 </Project>
