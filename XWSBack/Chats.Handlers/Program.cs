@@ -42,6 +42,8 @@ namespace Chats.Handlers
                     
                     services.AddSingleton<IMongoClient, MongoClient>(s => SetupMongoDb.CreateClient<Chat>("ChatsHandlers", "Chats"));
                     BsonSerializer.RegisterSerializer(typeof(Guid), new GuidSerializer(BsonType.String));
+
+                    services.AddAutoMapper(typeof(Program));
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.ChatHandlers);

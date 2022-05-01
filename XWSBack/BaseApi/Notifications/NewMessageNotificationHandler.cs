@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using BaseApi.Hubs;
 using BaseApi.Messages.Notifications;
+using Chats.Messages.Dtos;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using NServiceBus;

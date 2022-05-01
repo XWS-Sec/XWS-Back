@@ -98,6 +98,11 @@ namespace Chats.Handlers.Handlers
                 retVal += $"SenderId is mandatory\n";
             }
 
+            if (message.SenderId == message.ReceiverId)
+            {
+                retVal += $"Sender and receiver cannot  be the same person\n";
+            }
+            
             if (string.IsNullOrEmpty(message.Message))
             {
                 retVal += $"Message cannot be empty\n";

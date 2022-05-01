@@ -60,6 +60,7 @@ namespace BaseApi
                     routing.RouteToEndpoint(typeof(GetPostsRequest), EndpointInstances.PostHandlers);
                     
                     routing.RouteToEndpoint(typeof(AddMessageRequest), EndpointInstances.ChatHandlers);
+                    routing.RouteToEndpoint(typeof(GetChatRequest), EndpointInstances.ChatHandlers);
 
                     return endpointConfig;
                 });

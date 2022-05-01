@@ -24,6 +24,21 @@ namespace BaseApi.Controllers
             _session = session;
         }
 
+        [HttpGet("{page}/{otherUserId}")]
+        public async Task<IActionResult> Get(int page, Guid otherUserId)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+            await _session.SendLocal(new BeginGetChatRequest()
+            {
+                Page = page,
+                CorrelationId = Guid.NewGuid(),
+                UserId = userId,
+                OtherUserId = otherUserId
+            }).ConfigureAwait(false);
+
+            return Ok();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post(NewMessageDto messageDto)
         {
