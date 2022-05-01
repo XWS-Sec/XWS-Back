@@ -38,7 +38,7 @@ namespace Users.Graph.Handlers.Handlers.Follow
                 FollowRequests = await _getFollowStatsService.GetFollowRequests(message.UserId),
                 IsSuccessful = true,
                 MessageToLog = $"Success!",
-                CorrelationId = message.CorrelationId
+                CorrelationId = message.CorrelationId,
             }).ConfigureAwait(false);
         }
 
