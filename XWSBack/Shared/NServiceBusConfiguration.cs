@@ -16,6 +16,10 @@ namespace Shared
         {
             endpointConfig.AuditProcessedMessagesTo("audit");
             endpointConfig.SendFailedMessagesTo("error");
+            endpointConfig.SendHeartbeatTo("Particular.ServiceControl", TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(15));
+            var metrics = endpointConfig.EnableMetrics();
+            
+            metrics.SendMetricDataToServiceControl("Particular.Monitoring", TimeSpan.FromSeconds(3));
 
             var databus = endpointConfig.UseDataBus<FileShareDataBus>();
             databus.BasePath(Environment.GetEnvironmentVariable("DATABUS_PATH") ?? "C:\\NServiceBusFileShare");
