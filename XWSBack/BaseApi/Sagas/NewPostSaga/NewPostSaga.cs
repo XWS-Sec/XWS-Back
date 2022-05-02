@@ -8,13 +8,15 @@ using BaseApi.Services.PictureServices;
 using Microsoft.AspNetCore.Identity;
 using NServiceBus;
 using Posts.Messages;
+using Users.Graph.Messages.Follow;
 
 namespace BaseApi.Sagas.NewPostSaga
 {
     public class NewPostSaga : Saga<NewPostSagaData>,
         IAmStartedByMessages<BeginNewPostRequest>,
         IHandleTimeouts<BaseTimeout>,
-        IHandleMessages<NewPostResponse>
+        IHandleMessages<NewPostResponse>,
+        IHandleMessages<GetFollowStatsResponse>
     {
         private readonly UserManager<User> _userManager;
         private readonly PictureService _pictureService;
@@ -29,6 +31,7 @@ namespace BaseApi.Sagas.NewPostSaga
         {
             mapper.ConfigureMapping<BeginNewPostRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
             mapper.ConfigureMapping<NewPostResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
         }
 
         public async Task Handle(BeginNewPostRequest message, IMessageHandlerContext context)
@@ -87,10 +90,31 @@ namespace BaseApi.Sagas.NewPostSaga
                 IsSuccessful = true,
                 UserId = Data.UserId
             }).ConfigureAwait(false);
+
+            await context.Send(new GetFollowStatsRequest()
+            {
+                CorrelationId = Data.CorrelationId,
+                UserId = Data.UserId
+            }).ConfigureAwait(false);
+        }
+
+        public async Task Handle(GetFollowStatsResponse message, IMessageHandlerContext context)
+        {
+            if (!message.IsSuccessful)
+            {
+                await FailSaga(context, message.MessageToLog);
+                return;
+            }
+
+            await context.SendLocal(new NewPostNotification()
+            {
+                Poster = Data.UserId,
+                UsersToNotify = message.Followers
+            }).ConfigureAwait(false);
             
             MarkAsComplete();
         }
-
+        
         private async Task<string> Validate(BeginNewPostRequest message)
         {
             var retVal = string.Empty;
