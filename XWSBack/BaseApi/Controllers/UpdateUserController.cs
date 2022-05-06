@@ -44,10 +44,12 @@ namespace BaseApi.Controllers
             var newUser = _mapper.Map<User>(editBasicUserDto);
             await _editUserService.EditBasicInformations(user.Id, newUser).ConfigureAwait(false);
 
-
-
             return Ok(newUser);
         }
+
+
+
+
 
     }
 }
