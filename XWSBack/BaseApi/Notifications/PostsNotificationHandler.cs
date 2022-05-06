@@ -24,7 +24,7 @@ namespace BaseApi.Notifications
         
         public async Task Handle(PostsNotification message, IMessageHandlerContext context)
         {
-            _logger.Log(LogLevel.Information, $"Retrieved posts for user {message.UserId}");
+            _logger.LogInformation("Retrieved posts for user {UserId}", message.UserId);
 
             if (_dictionary.TryGetValue(message.UserId, out var user))
             {

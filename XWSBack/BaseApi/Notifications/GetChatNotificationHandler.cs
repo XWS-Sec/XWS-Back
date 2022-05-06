@@ -24,7 +24,7 @@ namespace BaseApi.Notifications
         
         public async Task Handle(GetChatNotification message, IMessageHandlerContext context)
         {
-            _logger.Log(LogLevel.Information, $"Retrieved chat for user {message.UserId} with user {message.OtherUserId}");
+            _logger.LogInformation("Retrieved chat for user {UserId} with user {OtherUserId}", message.UserId, message.OtherUserId);
 
             if (_dictionary.TryGetValue(message.UserId, out var sender))
             {

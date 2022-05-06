@@ -5,6 +5,9 @@ using System.Text;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using NServiceBus;
+using NServiceBus.Logging;
+using NServiceBus.Serilog;
+using Serilog;
 using Shared.Custom;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
@@ -18,7 +21,7 @@ namespace Shared
             endpointConfig.SendFailedMessagesTo("error");
             endpointConfig.SendHeartbeatTo("Particular.ServiceControl", TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(15));
             var metrics = endpointConfig.EnableMetrics();
-            
+
             metrics.SendMetricDataToServiceControl("Particular.Monitoring", TimeSpan.FromSeconds(3));
 
             var databus = endpointConfig.UseDataBus<FileShareDataBus>();

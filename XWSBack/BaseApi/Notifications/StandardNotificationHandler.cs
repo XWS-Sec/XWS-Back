@@ -23,8 +23,7 @@ namespace BaseApi.Notifications
         
         public async Task Handle(StandardNotification message, IMessageHandlerContext context)
         {
-            _logger.Log(message.IsSuccessful ? LogLevel.Information : LogLevel.Warning,
-                $"[User: {message.UserId}] - {message.Message}");
+            _logger.LogInformation("[User: {UserId}] - {Message}", message.UserId, message.Message);
 
             if (_dictionary.TryGetValue(message.UserId, out var user))
             {

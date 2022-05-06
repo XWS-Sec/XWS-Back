@@ -21,7 +21,7 @@ namespace BaseApi
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                .Enrich.FromLogContext()
+                .Enrich.WithNsbExceptionDetails().FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.File("Logs/BaseApi.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();

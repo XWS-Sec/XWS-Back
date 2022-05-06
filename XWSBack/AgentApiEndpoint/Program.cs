@@ -9,19 +9,42 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using Serilog;
+using Serilog.Events;
 using Shared;
 
 namespace AgentApiEndpoint
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.WithNsbExceptionDetails().FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File("Logs/AgentApi.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+            try
+            {
+                Log.Information("Starting web host");
+                CreateHostBuilder(args).Build().Run();
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Log.Fatal(e, "Host terminated unexpectedly");
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     var certPath = Environment.GetEnvironmentVariable("XWS_PKI_ROOT_CERT_FOLDER") ?? @"%USERPROFILE%\.xws-cert\";

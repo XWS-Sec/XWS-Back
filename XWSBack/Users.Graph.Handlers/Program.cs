@@ -5,6 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Neo4jClient;
 using NServiceBus;
+using Serilog;
+using Serilog.Events;
 using Shared;
 using Users.Graph.Handlers.Services;
 
@@ -12,20 +14,37 @@ namespace Users.Graph.Handlers
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.WithNsbExceptionDetails().FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File("Logs/BaseApi.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+            
+            try
+            {
+                Log.Information("Starting web host");
+                CreateHostBuilder(args).Build().Run();
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Log.Fatal(e, "Host terminated unexpectedly");
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
         
         static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
                 .UseConsoleLifetime()
-                .ConfigureLogging(logging =>
-                {
-                    logging.AddConsole();
-                    logging.SetMinimumLevel(LogLevel.Information);
-                })
+                .UseSerilog()
                 .ConfigureServices(services =>
                 {
                     var uri = Environment.GetEnvironmentVariable("NEO4J_URI") ?? "bolt://localhost:7687";

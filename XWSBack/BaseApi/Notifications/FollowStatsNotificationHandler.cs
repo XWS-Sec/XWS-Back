@@ -23,7 +23,7 @@ namespace BaseApi.Notifications
 
         public async Task Handle(FollowStatsNotification message, IMessageHandlerContext context)
         {
-            _logger.Log(LogLevel.Information, $"Retrieved follow stats for user {message.UserId}");
+            _logger.LogInformation("Retrieved follow stats for user {UserId}", message.UserId);
 
             if (_dictionary.TryGetValue(message.UserId, out var user))
             {
