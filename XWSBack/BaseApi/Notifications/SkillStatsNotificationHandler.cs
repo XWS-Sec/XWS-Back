@@ -23,7 +23,7 @@ namespace BaseApi.Notifications
 
         public async Task Handle(SkillStatsNotification message, IMessageHandlerContext context)
         {
-            _logger.Log(LogLevel.Information, $"Retrieved {(message.LinkName == "hasInterest" ? "interests" : "skills")} for user {message.UserId}");
+            _logger.LogInformation("Retrieved {LinkName} for user {UserId}", message.LinkName, message.UserId);
 
             if (_dictionary.TryGetValue(message.UserId, out var user))
             {

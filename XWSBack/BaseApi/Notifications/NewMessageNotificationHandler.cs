@@ -24,7 +24,7 @@ namespace BaseApi.Notifications
         
         public async Task Handle(NewMessageNotification message, IMessageHandlerContext context)
         {
-            _logger.Log(LogLevel.Information, $"New message from {message.SenderId} to {message.ReceiverId}");
+            _logger.LogInformation("New message from {SenderId} to {ReceiverId}", message.SenderId, message.ReceiverId);
 
             if (_dictionary.TryGetValue(message.SenderId, out var sender))
             {

@@ -24,7 +24,7 @@ namespace BaseApi.Notifications
 
         public async Task Handle(NewPostNotification message, IMessageHandlerContext context)
         {
-            _logger.Log(LogLevel.Information, $"Notifying users of the new post from user {message.Poster}");
+            _logger.LogInformation("Notifying users of the new post from user {Poster}", message.Poster);
 
             foreach (var user in message.UsersToNotify)
             {

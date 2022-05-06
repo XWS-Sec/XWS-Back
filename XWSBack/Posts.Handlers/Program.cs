@@ -9,26 +9,44 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using NServiceBus;
 using Posts.Model;
+using Serilog;
+using Serilog.Events;
 using Shared;
 
 namespace Posts.Handlers
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.WithNsbExceptionDetails().FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File("Logs/Posts.Handlers.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+            try
+            {
+                Log.Information("Starting web host");
+                CreateHostBuilder(args).Build().Run();
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Log.Fatal(e, "Host terminated unexpectedly");
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
                 .UseConsoleLifetime()
-                .ConfigureLogging(logging =>
-                {
-                    logging.AddConsole();
-                    logging.SetMinimumLevel(LogLevel.Information);
-                })
+                .UseSerilog()
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<IMongoClient, MongoClient>(s => SetupMongoDb.CreateClient<Post>("PostsHandlers", "Posts"));

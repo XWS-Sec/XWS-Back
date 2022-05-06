@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using Neo4jClient;
+using Serilog;
 using Shared;
 using SignalRSwaggerGen.Enums;
 
@@ -68,12 +69,6 @@ namespace BaseApi
                 .Where(x => x.Name.EndsWith("Service"));
 
             foreach (var service in allServices) services.AddScoped(service);
-
-            services.AddLogging(l =>
-            {
-                l.AddConsole();
-                l.SetMinimumLevel(LogLevel.Information);
-            });
 
             var picUserDir = Environment.GetEnvironmentVariable("USER_PIC_DIR") ?? @"%USERPROFILE%\.xws-user-pics";
             var picPostDir = Environment.GetEnvironmentVariable("POST_PIC_DIR") ?? @"%USERPROFILE%\.xws-post-pics";
