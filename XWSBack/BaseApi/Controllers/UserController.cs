@@ -16,7 +16,7 @@ namespace BaseApi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [TypeFilter(typeof(CustomAuthorizeAttribute))]
-    public class UpdateUserController : ControllerBase
+    public class UserController : ControllerBase
     {
 
         private readonly UserManager<User> _userManager;
@@ -25,7 +25,7 @@ namespace BaseApi.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly PictureService _pictureService;
 
-        public UpdateUserController(UserManager<User> userManager, IMapper mapper, EditUserService editUserService, SignInManager<User> signInManager, PictureService pictureService)
+        public UserController(UserManager<User> userManager, IMapper mapper, EditUserService editUserService, SignInManager<User> signInManager, PictureService pictureService)
         {
             _userManager = userManager;
             _mapper = mapper;
@@ -64,7 +64,6 @@ namespace BaseApi.Controllers
         public async Task<IActionResult> ChangePhoto(IFormFile picture)
         {
             var userId = Guid.Parse(_userManager.GetUserId(User));
-            _pictureService.DeletePostPicture(userId);
             if (picture != null && picture.Length != 0)
             {
                 using var ms = new MemoryStream();
