@@ -60,20 +60,5 @@ namespace BaseApi.Controllers
             return Ok("Password succesfully changed!");
         }
 
-        [HttpPut("profileImg")]
-        public async Task<IActionResult> ChangePhoto(IFormFile picture)
-        {
-            var userId = Guid.Parse(_userManager.GetUserId(User));
-            if (picture != null && picture.Length != 0)
-            {
-                using var ms = new MemoryStream();
-                await picture.CopyToAsync(ms);
-
-                _pictureService.SaveUserPicture(userId, ms.ToArray());
-            }
-
-            return Ok("Profile image updated successfully");
-        }
-
     }
 }
