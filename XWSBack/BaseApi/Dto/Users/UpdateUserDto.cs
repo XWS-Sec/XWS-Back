@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BaseApi.Dto.Users
 {
-    public class EditBasicUserDto
+    public class UpdateUserDto
     {
         public string Name { get; set; }
 

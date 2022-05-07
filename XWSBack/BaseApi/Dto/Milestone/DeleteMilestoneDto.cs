@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BaseApi.Dto.Milestone
 {
-    public class RemoveMilestoneDto
+    public class DeleteMilestoneDto
     {
         [Required(ErrorMessage = "Title is required!")]
         public string Title { get; set; }

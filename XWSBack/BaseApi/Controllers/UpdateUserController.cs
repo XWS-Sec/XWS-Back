@@ -35,7 +35,7 @@ namespace BaseApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateBasicInformation([FromBody] EditBasicUserDto editBasicUserDto)
+        public async Task<IActionResult> UpdateBasicInformation([FromBody] UpdateUserDto editBasicUserDto)
         { 
             var user = await _userManager.GetUserAsync(User);
             var result = await _signInManager.PasswordSignInAsync(user.UserName, editBasicUserDto.Password, false, false);
@@ -47,29 +47,6 @@ namespace BaseApi.Controllers
 
             return Ok(newUser);
         }
-
-        [HttpPost("/milestone")]
-        public async Task<IActionResult> AddMilestone([FromBody] Milestone milestone)
-        {
-            var userId = Guid.Parse(_userManager.GetUserId(User));
-            await _editUserService.AddMilestone(userId,milestone).ConfigureAwait(false);
-
-            return Ok(milestone);
-        }
-
-        [HttpDelete("/milestone")]
-        public async Task<IActionResult> RemoveMilestone([FromBody] RemoveMilestoneDto removeMilestoneDto)
-        {
-            var userId = Guid.Parse(_userManager.GetUserId(User));
-            await _editUserService.RemoveMilestone(userId, removeMilestoneDto.Title,removeMilestoneDto.StartTime).ConfigureAwait(false);
-
-            return Ok("Succesfully removed!");
-
-        }
-
-
-
-
 
     }
 }
