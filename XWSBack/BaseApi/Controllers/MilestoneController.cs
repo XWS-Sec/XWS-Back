@@ -2,6 +2,7 @@
 using BaseApi.CustomAttributes;
 using BaseApi.Dto.Milestone;
 using BaseApi.Model.Mongo;
+using BaseApi.Services.Exceptions;
 using BaseApi.Services.MilestoneServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +43,15 @@ namespace BaseApi.Controllers
         public async Task<IActionResult> RemoveMilestone([FromBody] DeleteMilestoneDto removeMilestoneDto)
         {
             var userId = Guid.Parse(_userManager.GetUserId(User));
-            await _milestoneService.RemoveMilestone(userId, removeMilestoneDto.Title, removeMilestoneDto.StartTime).ConfigureAwait(false);
+            try
+            {
+                await _milestoneService.RemoveMilestone(userId, removeMilestoneDto.Title, removeMilestoneDto.StartTime).ConfigureAwait(false);
+            }
+            catch(BadRequestException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            
 
             return Ok("Succesfully removed!");
         }

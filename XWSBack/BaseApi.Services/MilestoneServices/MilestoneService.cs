@@ -34,7 +34,10 @@ namespace BaseApi.Services.MilestoneServices
             var user = await GetUser(userId);
 
             if (user.Experiences == null)
-                user.Experiences = new List<Milestone>();
+                throw new BadRequestException("User doesn't have any milestone!");
+
+            if (!user.Experiences.Any(x => x.Title.Equals(title) && x.StartDateTime.Equals(startTime)))
+                throw new BadRequestException("User doesn't have such milestone!");
 
             user.Experiences = user.Experiences.Where(x => !(x.Title.Equals(title) && x.StartDateTime.Equals(startTime))).ToList();
             await _usersCollection.ReplaceOneAsync(x => x.Id == userId, user);

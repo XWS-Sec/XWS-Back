@@ -73,7 +73,7 @@ namespace BaseApi.Controllers
                 _pictureService.SaveUserPicture(userId, ms.ToArray());
             }
 
-            return Ok("Image changed successfully");
+            return Ok("Profile image updated successfully");
         }
 
     }
