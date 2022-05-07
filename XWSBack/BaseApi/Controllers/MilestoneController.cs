@@ -2,7 +2,7 @@
 using BaseApi.CustomAttributes;
 using BaseApi.Dto.Milestone;
 using BaseApi.Model.Mongo;
-using BaseApi.Services.MilestoneService;
+using BaseApi.Services.MilestoneServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;

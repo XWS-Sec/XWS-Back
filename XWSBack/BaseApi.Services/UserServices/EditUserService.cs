@@ -1,4 +1,5 @@
 ﻿using BaseApi.Model.Mongo;
+using BaseApi.Services.BaseServices;
 using BaseApi.Services.Exceptions;
 using MongoDB.Driver;
 using System;
@@ -8,20 +9,13 @@ using System.Threading.Tasks;
 
 namespace BaseApi.Services.UserServices
 {
-    public class EditUserService
+    public class EditUserService : BaseService
     {
-        private readonly IMongoCollection<User> _usersCollection;
-
-        public EditUserService(IMongoClient client)
-        {
-            _usersCollection = client.GetDatabase("Users").GetCollection<User>("Users");
-        }
+        public EditUserService(IMongoClient client) : base(client) {}
 
         public async Task EditBasicInformations(Guid userId, User newUser)
         {
-            var currentUser = await _usersCollection.Find(x => x.Id == userId).FirstOrDefaultAsync();
-            if (currentUser == null)
-                throw new BadRequestException("User doesn't exist!");
+            var currentUser = await GetUser(userId);
 
             var editedUser = EditUser(currentUser, newUser);
 

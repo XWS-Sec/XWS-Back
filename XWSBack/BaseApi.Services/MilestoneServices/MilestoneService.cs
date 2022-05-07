@@ -1,4 +1,5 @@
 ﻿using BaseApi.Model.Mongo;
+using BaseApi.Services.BaseServices;
 using BaseApi.Services.Exceptions;
 using MongoDB.Driver;
 using System;
@@ -7,23 +8,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaseApi.Services.MilestoneService
+namespace BaseApi.Services.MilestoneServices
 {
-    public class MilestoneService
+    public class MilestoneService : BaseService
     {
-        private readonly IMongoCollection<User> _usersCollection;
 
-        public MilestoneService(IMongoCollection<User> usersCollection)
+        public MilestoneService(IMongoClient client)  : base(client)
         {
-            _usersCollection = usersCollection;
         }
 
         public async Task AddMilestone(Guid userId, Milestone milestone)
         {
-            var user = await _usersCollection.Find(x => x.Id == userId).FirstOrDefaultAsync();
-            if (user == null)
-                throw new BadRequestException("User doesn't exist!");
-
+            var user = await GetUser(userId);
 
             if (user.Experiences == null)
                 user.Experiences = new List<Milestone>();
@@ -34,9 +30,7 @@ namespace BaseApi.Services.MilestoneService
 
         public async Task RemoveMilestone(Guid userId, string title, DateTime startTime)
         {
-            var user = await _usersCollection.Find(x => x.Id == userId).FirstOrDefaultAsync();
-            if (user == null)
-                throw new BadRequestException("User doesn't exist!");
+            var user = await GetUser(userId);
 
             if (user.Experiences == null)
                 user.Experiences = new List<Milestone>();
