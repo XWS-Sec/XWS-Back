@@ -1,6 +1,7 @@
 ﻿using BaseApi.Model.Mongo;
 using BaseApi.Services.BaseServices;
 using BaseApi.Services.Exceptions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace BaseApi.Services.MilestoneServices
 {
-    public class MilestoneService : BaseService
+    public class MilestoneService : BaseUserService<MilestoneService>
     {
 
-        public MilestoneService(IMongoClient client)  : base(client)
+        public MilestoneService(IMongoClient client,ILogger<MilestoneService> logger)  : base(client,logger)
         {
         }
 

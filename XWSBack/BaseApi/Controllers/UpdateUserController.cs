@@ -40,12 +40,12 @@ namespace BaseApi.Controllers
             var user = await _userManager.GetUserAsync(User);
             var result = await _signInManager.PasswordSignInAsync(user.UserName, editBasicUserDto.Password, false, false);
             if (!result.Succeeded)
-                Unauthorized("Wrong username and password combination!");
+                return Unauthorized("Wrong username and password combination!");
 
             var newUser = _mapper.Map<User>(editBasicUserDto);
-            await _editUserService.EditBasicInformations(user.Id, newUser).ConfigureAwait(false);
+            var editedUser = await _editUserService.EditBasicInformations(user.Id, newUser).ConfigureAwait(false);
 
-            return Ok(newUser);
+            return Ok(editedUser);
         }
 
     }

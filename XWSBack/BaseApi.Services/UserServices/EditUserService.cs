@@ -1,6 +1,7 @@
 ﻿using BaseApi.Model.Mongo;
 using BaseApi.Services.BaseServices;
 using BaseApi.Services.Exceptions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -9,17 +10,18 @@ using System.Threading.Tasks;
 
 namespace BaseApi.Services.UserServices
 {
-    public class EditUserService : BaseService
+    public class EditUserService : BaseUserService<EditUserService>
     {
-        public EditUserService(IMongoClient client) : base(client) {}
+        public EditUserService(IMongoClient client, ILogger<EditUserService> logger) : base(client,logger) {}
 
-        public async Task EditBasicInformations(Guid userId, User newUser)
+        public async Task<User> EditBasicInformations(Guid userId, User newUser)
         {
             var currentUser = await GetUser(userId);
 
             var editedUser = EditUser(currentUser, newUser);
 
             await _usersCollection.ReplaceOneAsync(x => x.Id == editedUser.Id, editedUser);
+            return editedUser;
         }
 
         
