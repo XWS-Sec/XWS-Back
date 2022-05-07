@@ -48,5 +48,17 @@ namespace BaseApi.Controllers
             return Ok(editedUser);
         }
 
+        [HttpPut("password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangeUserPasswordDto changeUserPasswordDto)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var result = await _userManager.ChangePasswordAsync(user, changeUserPasswordDto.CurrentPassword, changeUserPasswordDto.NewPassword);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("Password succesfully changed!");
+        }
+
     }
 }
