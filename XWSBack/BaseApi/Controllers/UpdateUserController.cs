@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BaseApi.CustomAttributes;
+using BaseApi.Dto.Milestone;
 using BaseApi.Dto.Users;
 using BaseApi.Model.Mongo;
 using BaseApi.Services.Exceptions;
@@ -17,7 +18,7 @@ namespace BaseApi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [TypeFilter(typeof(CustomAuthorizeAttribute))]
-    public class UserController : ControllerBase
+    public class UpdateUserController : ControllerBase
     {
 
         private readonly UserManager<User> _userManager;
@@ -25,7 +26,7 @@ namespace BaseApi.Controllers
         private readonly EditUserService _editUserService;
         private readonly SignInManager<User> _signInManager;
 
-        public UserController(UserManager<User> userManager, IMapper mapper, EditUserService editUserService, SignInManager<User> signInManager)
+        public UpdateUserController(UserManager<User> userManager, IMapper mapper, EditUserService editUserService, SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _mapper = mapper;
@@ -45,6 +46,25 @@ namespace BaseApi.Controllers
             await _editUserService.EditBasicInformations(user.Id, newUser).ConfigureAwait(false);
 
             return Ok(newUser);
+        }
+
+        [HttpPost("/milestone")]
+        public async Task<IActionResult> AddMilestone([FromBody] Milestone milestone)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+            await _editUserService.AddMilestone(userId,milestone).ConfigureAwait(false);
+
+            return Ok(milestone);
+        }
+
+        [HttpDelete("/milestone")]
+        public async Task<IActionResult> RemoveMilestone([FromBody] RemoveMilestoneDto removeMilestoneDto)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+            await _editUserService.RemoveMilestone(userId, removeMilestoneDto.Title,removeMilestoneDto.StartTime).ConfigureAwait(false);
+
+            return Ok("Succesfully removed!");
+
         }
 
 
