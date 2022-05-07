@@ -12,7 +12,7 @@ namespace BaseApi.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)
         {
-            var path = Environment.GetEnvironmentVariable("POST_PIC_DIR") ?? @"%USERPROFILE%\.xws-user-pics";
+            var path = Environment.GetEnvironmentVariable("USER_PIC_DIR") ?? @"%USERPROFILE%\.xws-user-pics";
             var expanded = Environment.ExpandEnvironmentVariables(path);
 
             var pic = $"{expanded}\\{id}";
