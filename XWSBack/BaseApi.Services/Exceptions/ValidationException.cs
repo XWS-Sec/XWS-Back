@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BaseApi.Services.Exceptions
 {
-    public class BadRequestException : Exception
+    public class ValidationException : Exception
     {
-        public BadRequestException(string errorMessage) : base(errorMessage)
+        public ValidationException(string errorMessage) : base(errorMessage)
         {
 
         }

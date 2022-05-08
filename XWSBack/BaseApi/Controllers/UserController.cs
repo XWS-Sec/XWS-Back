@@ -2,6 +2,7 @@
 using BaseApi.CustomAttributes;
 using BaseApi.Dto.Users;
 using BaseApi.Model.Mongo;
+using BaseApi.Services.Exceptions;
 using BaseApi.Services.PictureServices;
 using BaseApi.Services.UserServices;
 using Microsoft.AspNetCore.Http;
@@ -22,28 +23,33 @@ namespace BaseApi.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
         private readonly EditUserService _editUserService;
-        private readonly SignInManager<User> _signInManager;
-        private readonly PictureService _pictureService;
 
-        public UserController(UserManager<User> userManager, IMapper mapper, EditUserService editUserService, SignInManager<User> signInManager, PictureService pictureService)
+        public UserController(UserManager<User> userManager, IMapper mapper, EditUserService editUserService)
         {
             _userManager = userManager;
             _mapper = mapper;
             _editUserService = editUserService;
-            _signInManager = signInManager;
-            _pictureService = pictureService;
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateBasicInformation([FromBody] UpdateUserDto editBasicUserDto)
         { 
             var user = await _userManager.GetUserAsync(User);
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, editBasicUserDto.Password, false, false);
-            if (!result.Succeeded)
+            var result = await _userManager.CheckPasswordAsync(user, editBasicUserDto.Password);
+            if (!result)
                 return Unauthorized("Wrong username and password combination!");
 
             var newUser = _mapper.Map<User>(editBasicUserDto);
-            var editedUser = await _editUserService.EditBasicInformations(user.Id, newUser).ConfigureAwait(false);
+            User editedUser;
+            try
+            {
+                editedUser = await _editUserService.EditBasicInformations(user.Id, newUser).ConfigureAwait(false);
+            }
+            catch(ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            
 
             return Ok(editedUser);
         }

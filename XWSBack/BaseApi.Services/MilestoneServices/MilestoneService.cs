@@ -25,6 +25,9 @@ namespace BaseApi.Services.MilestoneServices
             if (user.Experiences == null)
                 user.Experiences = new List<Milestone>();
 
+            if (user.Experiences.Any(x => x.Title.Equals(milestone.Title) && x.StartDateTime.Equals(milestone.StartDateTime)))
+                throw new ValidationException("User already has milestone with same title and start time!");
+
             user.Experiences.Add(milestone);
             await _usersCollection.ReplaceOneAsync(x => x.Id == userId, user);
         }
@@ -34,10 +37,10 @@ namespace BaseApi.Services.MilestoneServices
             var user = await GetUser(userId);
 
             if (user.Experiences == null)
-                throw new BadRequestException("User doesn't have any milestone!");
+                throw new ValidationException("User doesn't have any milestone!");
 
             if (!user.Experiences.Any(x => x.Title.Equals(title) && x.StartDateTime.Equals(startTime)))
-                throw new BadRequestException("User doesn't have such milestone!");
+                throw new ValidationException("User doesn't have such milestone!");
 
             user.Experiences = user.Experiences.Where(x => !(x.Title.Equals(title) && x.StartDateTime.Equals(startTime))).ToList();
             await _usersCollection.ReplaceOneAsync(x => x.Id == userId, user);

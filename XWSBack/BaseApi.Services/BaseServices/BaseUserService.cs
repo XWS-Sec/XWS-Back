@@ -27,7 +27,7 @@ namespace BaseApi.Services.BaseServices
             if (user == null)
             {
                 _logger.LogWarning("User with id:{userId} doesn't exist!",userId);
-                throw new BadRequestException("User doesn't exist!");
+                throw new ValidationException("User doesn't exist!");
             }
 
             return user;

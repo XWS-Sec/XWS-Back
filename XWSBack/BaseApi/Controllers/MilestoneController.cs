@@ -34,7 +34,15 @@ namespace BaseApi.Controllers
         {
             var milestone = _mapper.Map<Milestone>(addMilestoneDto);
             var userId = Guid.Parse(_userManager.GetUserId(User));
-            await _milestoneService.AddMilestone(userId, milestone).ConfigureAwait(false);
+            try
+            {
+                await _milestoneService.AddMilestone(userId, milestone).ConfigureAwait(false);
+            }
+            catch(ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+
 
             return Ok(milestone);
         }
@@ -47,7 +55,7 @@ namespace BaseApi.Controllers
             {
                 await _milestoneService.RemoveMilestone(userId, removeMilestoneDto.Title, removeMilestoneDto.StartTime).ConfigureAwait(false);
             }
-            catch(BadRequestException exception)
+            catch(ValidationException exception)
             {
                 return BadRequest(exception.Message);
             }

@@ -15,7 +15,6 @@ namespace BaseApi.Dto.Users
         [Required(ErrorMessage = "Current password is required")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage ="Privacy option is required")]
         public bool IsPrivate { get; set; }
 
         [EmailAddress]
