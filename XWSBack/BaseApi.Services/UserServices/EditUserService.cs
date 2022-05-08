@@ -16,6 +16,7 @@ namespace BaseApi.Services.UserServices
 
         public async Task<User> EditBasicInformations(Guid userId, User newUser)
         {
+            await CheckUniquenessAsync(newUser);
             var currentUser = await GetUser(userId);
 
             var editedUser = EditUser(currentUser, newUser);
@@ -24,9 +25,26 @@ namespace BaseApi.Services.UserServices
             return editedUser;
         }
 
-        
+        private async Task CheckUniquenessAsync(User user)
+        {
+            if (!string.IsNullOrEmpty(user.UserName))
+            {
+                bool alreadyExists = await _usersCollection.Find(x => x.UserName.Equals(user.UserName)).AnyAsync();
+                if (alreadyExists)
+                    throw new ValidationException("Username already exists!");
+            }
+            if(!string.IsNullOrEmpty(user.Email))
+            {
+                bool alreadyExists = await _usersCollection.Find(x => x.Email.Equals(user.Email)).AnyAsync();
+                if (alreadyExists)
+                    throw new ValidationException("Email already exists!");
+            }
+                
+        }
+
         private static User EditUser(User editedUser,User newUser)
         {
+            editedUser.UserName = string.IsNullOrEmpty(newUser.UserName) ? editedUser.UserName : newUser.UserName;
             editedUser.Name = string.IsNullOrEmpty(newUser.Name) ? editedUser.Name : newUser.Name;
             editedUser.Surname = string.IsNullOrEmpty(newUser.Surname) ? editedUser.Surname : newUser.Surname;
             editedUser.IsPrivate = newUser.IsPrivate;

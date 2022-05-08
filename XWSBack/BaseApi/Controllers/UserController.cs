@@ -35,9 +35,6 @@ namespace BaseApi.Controllers
         public async Task<IActionResult> UpdateBasicInformation([FromBody] UpdateUserDto editBasicUserDto)
         { 
             var user = await _userManager.GetUserAsync(User);
-            var result = await _userManager.CheckPasswordAsync(user, editBasicUserDto.Password);
-            if (!result)
-                return Unauthorized("Wrong username and password combination!");
 
             var newUser = _mapper.Map<User>(editBasicUserDto);
             User editedUser;

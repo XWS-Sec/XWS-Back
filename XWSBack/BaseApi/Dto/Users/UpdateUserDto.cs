@@ -8,12 +8,11 @@ namespace BaseApi.Dto.Users
 {
     public class UpdateUserDto
     {
+        public string Username { get; set; }
+
         public string Name { get; set; }
 
         public string Surname { get; set; }
-
-        [Required(ErrorMessage = "Current password is required")]
-        public string Password { get; set; }
 
         public bool IsPrivate { get; set; }
 
