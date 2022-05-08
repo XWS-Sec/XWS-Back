@@ -34,6 +34,13 @@ namespace BaseApi.Services.PictureServices
             }
         }
 
+        public void DeleteUserPicture(Guid userId)
+        {
+            var userPics = Environment.GetEnvironmentVariable("USER_PIC_DIR") ?? @"%USERPROFILE%\.xws-user-pics";
+            userPics = Environment.ExpandEnvironmentVariables(userPics);
+            if (File.Exists($"{userPics}\\{userId}")) File.Delete($"{userPics}\\{userId}");
+        }
+
         public bool SavePostPicture(Guid postId, byte[] picture)
         {
             if (picture == null || picture.Length == 0)
