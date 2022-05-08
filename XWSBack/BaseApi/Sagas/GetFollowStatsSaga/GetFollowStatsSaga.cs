@@ -25,6 +25,7 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetFollowStatsSagaData> mapper)
         {
             mapper.ConfigureMapping<BeginGetFollowStatsRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
         }
 
         public async Task Handle(BeginGetFollowStatsRequest message, IMessageHandlerContext context)
