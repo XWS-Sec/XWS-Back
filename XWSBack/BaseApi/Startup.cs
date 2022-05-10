@@ -3,9 +3,11 @@ using System.IO;
 using System.Linq;
 using BaseApi.Hubs;
 using BaseApi.Model.Mongo;
+using BaseApi.Services.ConfigurationContracts;
 using BaseApi.Services.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -51,18 +53,10 @@ namespace BaseApi
                     options.Password.RequireUppercase = false;
                     options.Password.RequireLowercase = false;
                     options.User.RequireUniqueEmail = true;
-                })
+                }).AddDefaultTokenProviders()
                 .AddMongoDbStores<User, Role, Guid>(mongoConnectionString, "Users");
 
             services.AddAutoMapper(typeof(Startup));
-
-            var uri = Environment.GetEnvironmentVariable("NEO4J_URI") ?? "bolt://localhost:7687";
-            var user = Environment.GetEnvironmentVariable("NEO4J_USER") ?? "neo4j";
-            var pass = Environment.GetEnvironmentVariable("NEO4J_PASS") ?? "neo4j";
-            var graphClient = new BoltGraphClient(new Uri(uri), user, pass);
-            graphClient.ConnectAsync();
-
-            services.AddSingleton<IGraphClient, BoltGraphClient>(s => graphClient);
 
             var allServices = typeof(ImageExtensions).Assembly
                 .GetTypes()
@@ -86,6 +80,8 @@ namespace BaseApi
                     .AllowAnyHeader()
                     .SetIsOriginAllowed(_ => true);
             }));
+
+            services.AddSingleton(new SendGridContract());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
