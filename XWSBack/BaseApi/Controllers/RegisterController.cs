@@ -1,11 +1,16 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using AutoMapper;
 using BaseApi.Dto;
 using BaseApi.Model.Mongo;
+using BaseApi.Services.EmailService;
 using BaseApi.Services.PictureServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using NServiceBus;
 using Users.Graph.Messages;
 
@@ -20,15 +25,17 @@ namespace BaseApi.Controllers
         private readonly PictureService _pictureService;
         private readonly RoleManager<Role> _roleManager;
         private readonly UserManager<User> _userManager;
+        private readonly EmailService _emailService;
 
         public RegisterController(UserManager<User> userManager, IMapper mapper, IMessageSession messageSession,
-            PictureService pictureService, RoleManager<Role> roleManager)
+            PictureService pictureService, RoleManager<Role> roleManager, EmailService emailService)
         {
             _userManager = userManager;
             _mapper = mapper;
             _messageSession = messageSession;
             _pictureService = pictureService;
             _roleManager = roleManager;
+            _emailService = emailService;
         }
 
         [HttpPost]
@@ -56,7 +63,36 @@ namespace BaseApi.Controllers
                 _pictureService.SaveUserPicture(mappedUser.Id, ms.ToArray());
             }
 
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(mappedUser);
+            code = HttpUtility.UrlEncode(code);
+            try
+            {
+                await _emailService.VerifyEmail(mappedUser.Email, mappedUser.Id, code);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
             return Ok(mappedUser);
+        }
+
+        [HttpGet("Confirm")]
+        public async Task<IActionResult> Confirm(Guid userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Redirect("/swagger");
         }
     }
 }
