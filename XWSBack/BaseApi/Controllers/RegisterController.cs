@@ -6,7 +6,7 @@ using System.Web;
 using AutoMapper;
 using BaseApi.Dto;
 using BaseApi.Model.Mongo;
-using BaseApi.Services.EmailService;
+using BaseApi.Services.MailService;
 using BaseApi.Services.PictureServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
