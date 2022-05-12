@@ -43,5 +43,19 @@ namespace BaseApi.Controllers
             await _signInManager.SignOutAsync();
             return Ok();
         }
+
+        [HttpPost("api/login/passwordless")]
+        public async Task<IActionResult> Passwordless(string accessToken, string issuer)
+        {
+            try
+            {
+                await _loginService.LoginPasswordless(accessToken, issuer);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            return Ok();
+        }
     }
 }

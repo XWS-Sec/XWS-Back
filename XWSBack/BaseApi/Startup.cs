@@ -5,6 +5,7 @@ using BaseApi.Hubs;
 using BaseApi.Model.Mongo;
 using BaseApi.Services.ConfigurationContracts;
 using BaseApi.Services.Extensions;
+using BaseApi.Services.PasswordlessSettings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -82,6 +83,9 @@ namespace BaseApi
             }));
 
             services.AddSingleton(new SendGridContract());
+
+            services.AddSingleton(new FacebookAuthSettings());
+            services.AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
