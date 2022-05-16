@@ -6,6 +6,7 @@ using BaseApi.Model.Mongo;
 using BaseApi.Services.ConfigurationContracts;
 using BaseApi.Services.Extensions;
 using BaseApi.Services.PasswordlessSettings;
+using BaseApi.Services.TokenProvider;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -55,6 +56,7 @@ namespace BaseApi
                     options.Password.RequireLowercase = false;
                     options.User.RequireUniqueEmail = true;
                 }).AddDefaultTokenProviders()
+                .AddTokenProvider<NPTokenProvider<User>>("NPTokenProvider")
                 .AddMongoDbStores<User, Role, Guid>(mongoConnectionString, "Users");
 
             services.AddAutoMapper(typeof(Startup));

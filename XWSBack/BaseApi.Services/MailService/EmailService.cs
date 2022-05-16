@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using BaseApi.Services.ConfigurationContracts;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -18,6 +19,9 @@ namespace BaseApi.Services.MailService
 
         private const string RecoveryTemplate = "d-da61904271ad475ead15b4663004dabc";
 
+        private const string PasswordlessTemplate = "d-6bca0faa0d8f4425bf996adcdcb9472c";
+        private const string PasswordlessLoginTemplate = "https://localhost:44322/api/login/our/passwordless/{0}/{1}";
+        
         private const string SuccessfulMail = "Mail sent to mail address : {0}";
         private const string FailedMail = "Couldn't send email to mail address : {0}";
 
@@ -59,6 +63,22 @@ namespace BaseApi.Services.MailService
             await SendTemplatedMail(message, email);
         }
 
+        public async Task SendPasswordlessToken(string email, string token, Guid id)
+        {
+            var message = new SendGridMessage()
+            {
+                From = new EmailAddress(_sendGridContract.From),
+                TemplateId = PasswordlessTemplate
+            };
+            message.AddTo(email);
+            message.SetTemplateData(new
+            {
+                loginUrl = string.Format(PasswordlessLoginTemplate, token, id)
+            });
+
+            await SendTemplatedMail(message, email);
+        }
+        
         private async Task SendTemplatedMail(SendGridMessage message, string email)
         {
             _client = new SendGridClient(_sendGridContract.Secret);
