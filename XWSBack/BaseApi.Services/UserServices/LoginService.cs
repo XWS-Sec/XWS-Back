@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using BaseApi.Model.Mongo;
 using BaseApi.Services.Exceptions;
+using BaseApi.Services.Extensions;
+using BaseApi.Services.MailService;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using NServiceBus;
 using Users.Graph.Messages;
 
@@ -15,24 +19,36 @@ namespace BaseApi.Services.UserServices
         private readonly UserManager<User> _userManager;
         private readonly FacebookLoginService _facebookLoginService;
         private readonly IMessageSession _session;
+        private readonly EmailService _emailService;
+        private const string TokenProviderName = "NPTokenProvider";
+        private const string TokenReason = "passwordless login";
 
-        public LoginService(SignInManager<User> signInManager, UserManager<User> userManager, FacebookLoginService facebookLoginService, IMessageSession session)
+        public LoginService(SignInManager<User> signInManager, UserManager<User> userManager, FacebookLoginService facebookLoginService, IMessageSession session, EmailService emailService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _facebookLoginService = facebookLoginService;
             _session = session;
+            _emailService = emailService;
+        }
+
+        public async Task SendToken(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            ValidateUser(user);
+
+            var token = await _userManager.GenerateUserTokenAsync(user, TokenProviderName, TokenReason);
+
+            token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token));
+            
+            await _emailService.SendPasswordlessToken(email, token, user.Id);
         }
 
         public async Task LoginCommon(string username, string password)
         {
             var user = await _userManager.FindByNameAsync(username);
 
-            if (user == null)
-                throw new ValidationException("User not found");
-
-            if (!user.EmailConfirmed)
-                throw new ValidationException("Email not verified");
+            ValidateUser(user);
             
             if (!await _userManager.CheckPasswordAsync(user, password))
                 throw new ValidationException("Passwords mismatch");
@@ -52,6 +68,22 @@ namespace BaseApi.Services.UserServices
             }
         }
 
+        public async Task LoginOurPasswordless(string accessToken, Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            ValidateUser(user);
+
+            accessToken = Encoding.UTF8.GetString(Convert.FromBase64String(accessToken));
+            
+            var isValid = await _userManager.VerifyUserTokenAsync(user, TokenProviderName, TokenReason, accessToken);
+            if (!isValid)
+            {
+                throw new Exception("Token is not valid!");
+            }
+
+            await Login(user);
+        }
+        
         private async Task HandleFacebook(string accessToken)
         {
             var validationResponse = await _facebookLoginService.ValidateAccessTokenAsync(accessToken);
@@ -86,6 +118,15 @@ namespace BaseApi.Services.UserServices
         private async Task Login(User user)
         {
             await _signInManager.SignInAsync(user, false, null);
+        }
+
+        private void ValidateUser(User user)
+        {
+            if (user == null)
+                throw new ValidationException("User not found");
+
+            if (!user.EmailConfirmed)
+                throw new ValidationException("Email not verified");
         }
     }
 }

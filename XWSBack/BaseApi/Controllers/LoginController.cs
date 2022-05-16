@@ -57,5 +57,35 @@ namespace BaseApi.Controllers
             }
             return Ok();
         }
+
+        [HttpGet("api/login/token")]
+        public async Task<IActionResult> GetToken(string email)
+        {
+            try
+            {
+                await _loginService.SendToken(email);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok();
+        }
+
+        [HttpGet("api/login/our/passwordless/{accessToken}/{id}")]
+        public async Task<IActionResult> OurPasswordless(string accessToken, Guid id)
+        {
+            try
+            {
+                await _loginService.LoginOurPasswordless(accessToken, id);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
+            return Redirect("/swagger");
+        }
     }
 }
