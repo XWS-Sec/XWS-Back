@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using BaseApi.Hubs;
+using BaseApi.Middleware;
 using BaseApi.Model.Mongo;
 using BaseApi.Services.ConfigurationContracts;
 using BaseApi.Services.Extensions;
@@ -108,6 +109,8 @@ namespace BaseApi
             app.UseAuthentication();
             
             app.UseCors("CorsPolicy");
+
+            app.UseMiddleware<AntiXssMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
