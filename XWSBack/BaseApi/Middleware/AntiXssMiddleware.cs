@@ -33,6 +33,7 @@ namespace BaseApi.Middleware
             using (var streamReader = new StreamReader(httpContext.Request.Body, Encoding.UTF8, leaveOpen: true))
             {
                 var raw = await streamReader.ReadToEndAsync();
+                raw = raw.Replace("\r\n", "\n");
 
                 var sanitized = sanitizer.Sanitize(raw);
                 if (raw != sanitized)
