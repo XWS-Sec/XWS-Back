@@ -51,6 +51,18 @@ namespace BaseApi.Controllers
             return Ok(editedUser);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUser()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if(user!= null)
+                return Ok(user);
+
+
+            return BadRequest("User not found!");
+        }
+
         [HttpPut("password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangeUserPasswordDto changeUserPasswordDto)
         {

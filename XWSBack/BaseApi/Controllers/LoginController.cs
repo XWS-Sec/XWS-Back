@@ -14,12 +14,14 @@ namespace BaseApi.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly LoginService _loginService;
         private readonly UserManager<User> _userManager;
+        private readonly string _path;
 
         public LoginController(UserManager<User> userManager, SignInManager<User> signInManager, LoginService loginService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _loginService = loginService;
+            _path = Environment.GetEnvironmentVariable("XWS_FRONT_PATH") ?? "http://localhost:3000";
         }
 
         [HttpPost("api/login")]
@@ -85,7 +87,7 @@ namespace BaseApi.Controllers
                 return BadRequest(e.Message);
             }
             
-            return Redirect("/swagger");
+            return Redirect(_path);
         }
     }
 }
