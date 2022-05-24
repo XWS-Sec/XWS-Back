@@ -34,5 +34,13 @@ namespace BaseApi.Controllers
 
             return Ok(users.ToEnumerable().Where(x => x.Id != userId));
         }
+
+        [HttpGet("username/{username}")]
+        public async Task<IActionResult> GetByUsername(string username)
+        {
+            var users = await _userCollection.FindAsync(x => x.Username == username);
+
+            return Ok(users.FirstOrDefault());
+        }
     }
 }
