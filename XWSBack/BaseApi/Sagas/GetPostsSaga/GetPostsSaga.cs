@@ -58,7 +58,7 @@ namespace BaseApi.Sagas.GetPostsSaga
             {
                 var requestedUser = await _userManager.FindByIdAsync(Data.RequestedUserId.ToString());
 
-                if (!requestedUser.IsPrivate)
+                if (Data.RequestedUserId == Data.UserId || !requestedUser.IsPrivate)
                 {
                     await context.Send(new GetPostsRequest()
                     {
