@@ -26,6 +26,7 @@ namespace BaseApi.Controllers
         private readonly RoleManager<Role> _roleManager;
         private readonly UserManager<User> _userManager;
         private readonly EmailService _emailService;
+        private readonly string _path;
 
         public RegisterController(UserManager<User> userManager, IMapper mapper, IMessageSession messageSession,
             PictureService pictureService, RoleManager<Role> roleManager, EmailService emailService)
@@ -36,6 +37,7 @@ namespace BaseApi.Controllers
             _pictureService = pictureService;
             _roleManager = roleManager;
             _emailService = emailService;
+            _path = Environment.GetEnvironmentVariable("XWS_FRONT_PATH") ?? "http://localhost:3000";
         }
 
         [HttpPost]
@@ -92,7 +94,7 @@ namespace BaseApi.Controllers
                 return BadRequest(result.Errors);
             }
 
-            return Redirect("/swagger");
+            return Redirect(_path);
         }
     }
 }
