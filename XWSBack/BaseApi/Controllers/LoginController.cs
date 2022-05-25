@@ -21,7 +21,7 @@ namespace BaseApi.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _loginService = loginService;
-            _path = Environment.GetEnvironmentVariable("XWS_FRONT_PATH") ?? "http://localhost:3000/loggedIn";
+            _path = Environment.GetEnvironmentVariable("XWS_FRONT_PATH_LOGGED") ?? "http://localhost:3000/loggedIn";
         }
 
         [HttpPost("api/login")]
