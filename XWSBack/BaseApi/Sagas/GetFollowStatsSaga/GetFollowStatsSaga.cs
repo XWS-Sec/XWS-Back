@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using BaseApi.Messages;
 using BaseApi.Messages.Notifications;
 using BaseApi.Messages.Timeouts;
 using BaseApi.Model.Mongo;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using NServiceBus;
 using Users.Graph.Messages.Follow;
 
@@ -62,7 +64,8 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
                 UserId = Data.UserId,
                 Followers = message.Followers,
                 Following = message.Following,
-                FollowRequests = message.FollowRequests
+                FollowRequests = message.FollowRequests,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             MarkAsComplete();
         }
@@ -93,9 +96,10 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
-            
+
             MarkAsComplete();
         }
     }

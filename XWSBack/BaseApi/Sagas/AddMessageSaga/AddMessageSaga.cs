@@ -69,7 +69,8 @@ namespace BaseApi.Sagas.AddMessageSaga
                 Message = Data.Message,
                 DateCreated = Data.DateCreated,
                 ReceiverId = Data.ReceiverId,
-                SenderId = Data.SenderId
+                SenderId = Data.SenderId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -144,7 +145,8 @@ namespace BaseApi.Sagas.AddMessageSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.SenderId
+                UserId = Data.SenderId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
 
             MarkAsComplete();

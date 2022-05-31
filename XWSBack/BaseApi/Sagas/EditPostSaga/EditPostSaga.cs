@@ -94,7 +94,8 @@ namespace BaseApi.Sagas.EditPostSaga
             {
                 Message = $"Successfully edited post {Data.PostId}",
                 IsSuccessful = true,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -105,7 +106,8 @@ namespace BaseApi.Sagas.EditPostSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

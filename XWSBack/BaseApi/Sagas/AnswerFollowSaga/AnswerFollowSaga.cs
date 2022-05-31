@@ -74,7 +74,8 @@ namespace BaseApi.Sagas.AnswerFollowSaga
             {
                 Message = $"Successfully {(Data.IsAccepted ? "accepted!" : "rejected!")}",
                 IsSuccessful = true,
-                UserId = Data.ObservedId
+                UserId = Data.ObservedId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
 
             await context.SendLocal(new StandardNotification()
@@ -118,7 +119,8 @@ namespace BaseApi.Sagas.AnswerFollowSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.ObservedId
+                UserId = Data.ObservedId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

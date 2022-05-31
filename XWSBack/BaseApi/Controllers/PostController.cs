@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using BaseApi.Controllers.Base;
 using BaseApi.CustomAttributes;
 using BaseApi.Dto.Posts;
 using BaseApi.Messages;
 using BaseApi.Model.Mongo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Bson;
 using NServiceBus;
 
@@ -15,12 +17,12 @@ namespace BaseApi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [TypeFilter(typeof(CustomAuthorizeAttribute))]
-    public class PostController : ControllerBase
+    public class PostController : SyncController
     {
         private readonly IMessageSession _session;
         private readonly UserManager<User> _userManager;
 
-        public PostController(UserManager<User> userManager, IMessageSession session)
+        public PostController(UserManager<User> userManager, IMessageSession session, IMemoryCache cache) : base(cache)
         {
             _userManager = userManager;
             _session = session;
@@ -30,15 +32,18 @@ namespace BaseApi.Controllers
         public async Task<IActionResult> Get(int page, Guid specificUser)
         {
             var userId = Guid.Parse(_userManager.GetUserId(User));
-            await _session.SendLocal(new BeginGetPostsRequest()
+            var request = new BeginGetPostsRequest()
             {
                 Page = page,
                 CorrelationId = Guid.NewGuid(),
                 UserId = userId,
                 RequestedUserId = specificUser
-            }).ConfigureAwait(false);
-            
-            return Ok();
+            };
+            await _session.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
         }
         
         [HttpPost]
@@ -54,14 +59,18 @@ namespace BaseApi.Controllers
                 bytes = ms.ToArray();
             }
 
-            await _session.SendLocal(new BeginNewPostRequest()
+            var request = new BeginNewPostRequest()
             {
                 Picture = bytes,
                 Text = newPost.Text,
                 CorrelationId = Guid.NewGuid(),
                 UserId = userId
-            }).ConfigureAwait(false);
-            return Ok();
+            };
+            
+            await _session.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+            return ReturnBaseNotification(response);
         }
 
         [HttpPut("{postId}")]
@@ -77,7 +86,7 @@ namespace BaseApi.Controllers
                 bytes = ms.ToArray();
             }
 
-            await _session.SendLocal(new BeginEditPostRequest()
+            var request = new BeginEditPostRequest()
             {
                 Picture = bytes,
                 Text = postDto.Text,
@@ -85,9 +94,13 @@ namespace BaseApi.Controllers
                 PostId = postId,
                 UserId = userId,
                 RemoveOldPic = postDto.RemovedPicture
-            }).ConfigureAwait(false);
+            };
             
-            return Ok();
+            await _session.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
         }
     }
 }

@@ -11,6 +11,7 @@ using BaseApi.Services.TokenProvider;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -89,6 +90,15 @@ namespace BaseApi
 
             services.AddSingleton(new FacebookAuthSettings());
             services.AddHttpClient();
+
+            services.AddMemoryCache();
+
+            services.AddSingleton<MemoryCacheEntryOptions>(x => new MemoryCacheEntryOptions()
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.AddHours(1),
+                Priority = CacheItemPriority.High,
+                SlidingExpiration = TimeSpan.FromHours(1),
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

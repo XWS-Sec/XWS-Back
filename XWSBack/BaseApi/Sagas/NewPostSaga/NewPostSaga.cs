@@ -88,7 +88,8 @@ namespace BaseApi.Sagas.NewPostSaga
             {
                 Message = $"Successfully created a new post with id {Data.PostId}",
                 IsSuccessful = true,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
 
             await context.Send(new GetFollowStatsRequest()
@@ -136,7 +137,8 @@ namespace BaseApi.Sagas.NewPostSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

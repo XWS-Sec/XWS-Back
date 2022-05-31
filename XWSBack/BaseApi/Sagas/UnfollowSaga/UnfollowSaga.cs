@@ -62,7 +62,8 @@ namespace BaseApi.Sagas.UnfollowSaga
             {
                 IsSuccessful = true,
                 Message = $"Successfully unfollowed user {Data.Receiver}",
-                UserId = Data.Sender
+                UserId = Data.Sender,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -103,7 +104,8 @@ namespace BaseApi.Sagas.UnfollowSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.Sender
+                UserId = Data.Sender,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
