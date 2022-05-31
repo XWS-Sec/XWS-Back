@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
+using JobOffers.Handlers.Services;
 using JobOffers.Model;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +24,7 @@ namespace JobOffers.Handlers
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 .Enrich.WithNsbExceptionDetails().FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.File("Logs/Chats.Handlers.txt", rollingInterval: RollingInterval.Day)
+                .WriteTo.File("Logs/JobOffers.Handlers.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
             try
             {
@@ -58,10 +60,13 @@ namespace JobOffers.Handlers
                     
                     services.AddSingleton<IMongoClient, MongoClient>(s => SetupMongoDb.CreateClient<Company>("JobOffersHandlers", "JobOffers"));
                     BsonSerializer.RegisterSerializer(typeof(Guid), new GuidSerializer(BsonType.String));
+
+                    services.AddSingleton<HashAlgorithm>(x => SHA256.Create());
+                    services.AddScoped<ApiKeyGenerator>();
                 }).UseNServiceBus(ctx =>
                 {
-                    var endpointConfig = new EndpointConfiguration(EndpointInstances.ChatHandlers);
-                    var routing = endpointConfig.Configure(EndpointInstances.ChatHandlers);
+                    var endpointConfig = new EndpointConfiguration(EndpointInstances.JobOffersHandlers);
+                    var routing = endpointConfig.Configure(EndpointInstances.JobOffersHandlers);
 
                     return endpointConfig;
                 });

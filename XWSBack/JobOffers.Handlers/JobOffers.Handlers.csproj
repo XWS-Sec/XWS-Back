@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\JobOffers.Messages\JobOffers.Messages.csproj" />
       <ProjectReference Include="..\JobOffers.Model\JobOffers.Model.csproj" />
       <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
@@ -13,10 +14,6 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="11.0.1" />
       <PackageReference Include="NServiceBus.Extensions.Hosting" Version="1.1.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Handlers" />
     </ItemGroup>
 
 </Project>

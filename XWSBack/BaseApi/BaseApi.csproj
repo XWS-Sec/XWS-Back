@@ -26,6 +26,7 @@
       <ProjectReference Include="..\BaseApi.Model\BaseApi.Model.csproj" />
       <ProjectReference Include="..\BaseApi.Services\BaseApi.Services.csproj" />
       <ProjectReference Include="..\Chats.Messages\Chats.Messages.csproj" />
+      <ProjectReference Include="..\JobOffers.Messages\JobOffers.Messages.csproj" />
       <ProjectReference Include="..\Shared\Shared.csproj" />
       <ProjectReference Include="..\Users.Graph.Messages\Users.Graph.Messages.csproj" />
     </ItemGroup>
