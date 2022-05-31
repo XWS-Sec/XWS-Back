@@ -120,7 +120,8 @@ namespace BaseApi.Sagas.GetPostsSaga
             await context.SendLocal(new PostsNotification()
             {
                 UserId = Data.UserId,
-                Posts = _mapper.Map<List<PostNotificationDto>>(message.Posts)
+                Posts = _mapper.Map<List<PostNotificationDto>>(message.Posts),
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -131,7 +132,8 @@ namespace BaseApi.Sagas.GetPostsSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

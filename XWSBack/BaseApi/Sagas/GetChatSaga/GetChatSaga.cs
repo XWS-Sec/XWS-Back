@@ -96,7 +96,8 @@ namespace BaseApi.Sagas.GetChatSaga
             {
                 Messages = _mapper.Map<List<MessageNotificationDto>>(message.Messages),
                 UserId = Data.UserId,
-                OtherUserId = Data.OtherUserId
+                OtherUserId = Data.OtherUserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -112,7 +113,8 @@ namespace BaseApi.Sagas.GetChatSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

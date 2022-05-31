@@ -7,6 +7,7 @@ namespace BaseApi.Messages.Notifications
 {
     public class GetChatNotification : ICustomMessage
     {
+        public Guid CorrelationId { get; set; }
         public Guid UserId { get; set; }
         public Guid OtherUserId { get; set; }
         public IEnumerable<MessageNotificationDto> Messages { get; set; }

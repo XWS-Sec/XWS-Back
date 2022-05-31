@@ -72,7 +72,8 @@ namespace BaseApi.Sagas.FollowLinkSaga
             {
                 Message = "Successful!",
                 IsSuccessful = true,
-                UserId = Data.Sender
+                UserId = Data.Sender,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
 
             await context.SendLocal(new StandardNotification()
@@ -119,7 +120,8 @@ namespace BaseApi.Sagas.FollowLinkSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.Sender
+                UserId = Data.Sender,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
