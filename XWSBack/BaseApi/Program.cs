@@ -87,6 +87,7 @@ namespace BaseApi
                     routing.RouteToEndpoint(typeof(GetChatRequest), EndpointInstances.ChatHandlers);
                     
                     routing.RouteToEndpoint(typeof(CreateCompanyRequest), EndpointInstances.JobOffersHandlers);
+                    routing.RouteToEndpoint(typeof(PublishNewJobOfferRequest), EndpointInstances.JobOffersHandlers);
 
                     return endpointConfig;
                 });
