@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Chats.Messages;
+using JobOffers.Messages;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
@@ -84,6 +85,8 @@ namespace BaseApi
                     
                     routing.RouteToEndpoint(typeof(AddMessageRequest), EndpointInstances.ChatHandlers);
                     routing.RouteToEndpoint(typeof(GetChatRequest), EndpointInstances.ChatHandlers);
+                    
+                    routing.RouteToEndpoint(typeof(CreateCompanyRequest), EndpointInstances.JobOffersHandlers);
 
                     return endpointConfig;
                 });
