@@ -22,6 +22,20 @@ namespace BaseApi.Controllers
             _session = session;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var request = new BeginGetBasicJobOffersRequest()
+            {
+                CorrelationId = Guid.NewGuid()
+            };
+            await _session.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
+        }
+
         [HttpPost]
         [CheckApiKey]
         public async Task<IActionResult> Post(NewJobOfferDto dto)

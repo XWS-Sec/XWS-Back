@@ -63,6 +63,8 @@ namespace JobOffers.Handlers
 
                     services.AddSingleton<HashAlgorithm>(x => SHA256.Create());
                     services.AddScoped<ApiKeyGenerator>();
+
+                    services.AddAutoMapper(typeof(Program));
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.JobOffersHandlers);
