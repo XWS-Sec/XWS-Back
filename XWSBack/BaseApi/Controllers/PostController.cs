@@ -16,7 +16,6 @@ namespace BaseApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [TypeFilter(typeof(CustomAuthorizeAttribute))]
     public class PostController : SyncController
     {
         private readonly IMessageSession _session;
@@ -31,12 +30,15 @@ namespace BaseApi.Controllers
         [HttpGet("{page}")]
         public async Task<IActionResult> Get(int page, Guid specificUser)
         {
-            var userId = Guid.Parse(_userManager.GetUserId(User));
+            var userId = _userManager.GetUserId(User);
+            var userGuidId = string.IsNullOrEmpty(userId) 
+                ? Guid.Empty
+                : Guid.Parse(_userManager.GetUserId(User));
             var request = new BeginGetPostsRequest()
             {
                 Page = page,
                 CorrelationId = Guid.NewGuid(),
-                UserId = userId,
+                UserId = userGuidId,
                 RequestedUserId = specificUser
             };
             await _session.SendLocal(request).ConfigureAwait(false);
@@ -47,6 +49,7 @@ namespace BaseApi.Controllers
         }
         
         [HttpPost]
+        [TypeFilter(typeof(CustomAuthorizeAttribute))]
         public async Task<IActionResult> Post([FromForm] PostDto newPost)
         {
             var userId = Guid.Parse(_userManager.GetUserId(User));
@@ -74,6 +77,7 @@ namespace BaseApi.Controllers
         }
 
         [HttpPut("{postId}")]
+        [TypeFilter(typeof(CustomAuthorizeAttribute))]
         public async Task<IActionResult> Put([FromRoute] Guid postId, [FromForm] PostDto postDto)
         {
             var userId = Guid.Parse(_userManager.GetUserId(User));

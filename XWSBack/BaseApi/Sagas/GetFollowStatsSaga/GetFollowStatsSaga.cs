@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using BaseApi.Messages;
+using BaseApi.Messages.Dtos;
 using BaseApi.Messages.Notifications;
 using BaseApi.Messages.Timeouts;
 using BaseApi.Model.Mongo;
@@ -59,12 +61,16 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
                 return;
             }
 
+            var followers = await FindUsers(message.Followers);
+            var following = await FindUsers(message.Following);
+            var followRequests = await FindUsers(message.FollowRequests);
+
             await context.SendLocal(new FollowStatsNotification()
             {
                 UserId = Data.UserId,
-                Followers = message.Followers,
-                Following = message.Following,
-                FollowRequests = message.FollowRequests,
+                Followers = followers,
+                Following = following,
+                FollowRequests = followRequests,
                 CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             MarkAsComplete();
@@ -101,6 +107,25 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
             }).ConfigureAwait(false);
 
             MarkAsComplete();
+        }
+
+        private async Task<List<UserNotificationDto>> FindUsers(IEnumerable<Guid> userIds)
+        {
+            var retVal = new List<UserNotificationDto>();
+            foreach (var follower in userIds)
+            {
+                var currentUser = await _userManager.FindByIdAsync(follower.ToString());
+                retVal.Add(new UserNotificationDto()
+                {
+                    Id = currentUser.Id,
+                    Username = currentUser.UserName,
+                    Name = currentUser.Name,
+                    Surname = currentUser.Surname,
+                    IsPrivate = currentUser.IsPrivate
+                });
+            }
+
+            return retVal;
         }
     }
 }

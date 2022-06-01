@@ -143,21 +143,28 @@ namespace BaseApi.Sagas.GetPostsSaga
         {
             var retVal = string.Empty;
 
-            if (message.UserId == Guid.Empty)
-            {
-                retVal += $"UserId is mandatory\n";
-            }
-            else if (await _userManager.FindByIdAsync(message.UserId.ToString()) == null)
+            if (message.UserId != Guid.Empty && await _userManager.FindByIdAsync(message.UserId.ToString()) == null)
             {
                 retVal += $"User with id {message.UserId} not found\n";
             }
 
-            if (message.RequestedUserId != Guid.Empty &&
-                await _userManager.FindByIdAsync(message.RequestedUserId.ToString()) == null)
+            if (message.UserId == Guid.Empty && message.RequestedUserId == Guid.Empty)
             {
-                retVal += $"User with id {message.RequestedUserId} not found\n";
+                retVal += $"You cannot get posts if you are not logged in, only of a specific user who has to have a public profile\n";
             }
             
+            if (message.RequestedUserId != Guid.Empty)
+            {
+                var requestedUser = await _userManager.FindByIdAsync(message.RequestedUserId.ToString());
+                if (requestedUser == null)
+                {
+                    retVal += $"User with id {message.RequestedUserId} not found\n";
+                }else if (message.UserId == Guid.Empty && requestedUser.IsPrivate)
+                {
+                    retVal += $"Cannot retrieve posts of a private user if you are not logged in\n";
+                }
+            }
+
             return retVal;
         }
     }

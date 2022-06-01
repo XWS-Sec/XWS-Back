@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BaseApi.CustomAttributes;
 using BaseApi.Dto.Users;
+using BaseApi.Messages.Dtos;
 using BaseApi.Model.Mongo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,6 @@ namespace BaseApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [TypeFilter(typeof(CustomAuthorizeAttribute))]
     public class SearchUserController : ControllerBase
     {
         private readonly IMongoCollection<SearchedUserDto> _userCollection;
@@ -41,6 +41,23 @@ namespace BaseApi.Controllers
             var users = await _userCollection.FindAsync(x => x.Username == username);
 
             return Ok(users.FirstOrDefault());
+        }
+
+        [HttpGet("id/{userId}")]
+        public async Task<IActionResult> GetById(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            return user == null
+                ? BadRequest("User with that id is not present")
+                : Ok(new SearchedUserDto()
+                {
+                    Name = user.Name,
+                    Surname = user.Surname,
+                    Id = user.Id,
+                    Username = user.UserName,
+                    IsPrivate = user.IsPrivate
+                });
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BaseApi.Messages.Dtos;
 using Shared.Custom;
 
 namespace BaseApi.Messages.Notifications
@@ -8,8 +9,8 @@ namespace BaseApi.Messages.Notifications
     {
         public Guid CorrelationId { get; set; }
         public Guid UserId { get; set; }
-        public IEnumerable<Guid> Following { get; set; }
-        public IEnumerable<Guid> Followers { get; set; }
-        public IEnumerable<Guid> FollowRequests { get; set; }
+        public IEnumerable<UserNotificationDto> Following { get; set; }
+        public IEnumerable<UserNotificationDto> Followers { get; set; }
+        public IEnumerable<UserNotificationDto> FollowRequests { get; set; }
     }
 }
