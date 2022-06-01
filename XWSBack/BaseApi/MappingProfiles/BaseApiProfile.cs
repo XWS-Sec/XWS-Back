@@ -5,6 +5,7 @@ using BaseApi.Dto.Users;
 using BaseApi.Messages.Dtos;
 using BaseApi.Model.Mongo;
 using Chats.Messages.Dtos;
+using JobOffers.Messages.Dtos;
 using Posts.Messages.Dtos;
 
 namespace BaseApi.MappingProfiles
@@ -19,6 +20,7 @@ namespace BaseApi.MappingProfiles
             CreateMap<PostDto, PostNotificationDto>();
             CreateMap<MessageDto, MessageNotificationDto>();
             CreateMap<CreateMilestoneDto, Milestone>();
+            CreateMap<JobOfferDto, JobOfferNotificationDto>();
         }
     }
 }
