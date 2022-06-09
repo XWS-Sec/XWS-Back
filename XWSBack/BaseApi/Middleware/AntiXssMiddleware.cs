@@ -27,6 +27,13 @@ namespace BaseApi.Middleware
 
         public async Task Invoke(HttpContext httpContext)
         {
+            if (httpContext.Request.Path.Value.EndsWith("Picture") || 
+                httpContext.Request.Path.Value.Contains("Post"))
+            {
+                await _next.Invoke(httpContext);
+                return;
+            }
+        
             httpContext.Request.EnableBuffering();
             var sanitizer = new HtmlSanitizer();
 
