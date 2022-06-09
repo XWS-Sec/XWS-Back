@@ -123,5 +123,25 @@ namespace BaseApi.Controllers
 
             return ReturnBaseNotification(response);
         }
+
+        [HttpPost("comment/{postId}")]
+        [TypeFilter(typeof(CustomAuthorizeAttribute))]
+        public async Task<IActionResult> PostComment(Guid postId, NewCommentDto commentDto)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+
+            var request = new BeginCommentRequest()
+            {
+                Text = commentDto.Text,
+                CorrelationId = Guid.NewGuid(),
+                PostId = postId,
+                UserId = userId
+            };
+            await _session.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
+        }
     }
 }
