@@ -41,5 +41,14 @@ namespace Users.Graph.Handlers.Services
                 .Return(k => k.As<UserNode>().UserId)
                 .ResultsAsync;
         }
+
+        public async Task<IEnumerable<Guid>> GetFollowRequested(Guid userId)
+        {
+            return await _client.Cypher.Match("(u:UserNode)")
+                .Where((UserNode u) => u.UserId == userId)
+                .Match("(u)-[f:followRequest]->(k)")
+                .Return(k => k.As<UserNode>().UserId)
+                .ResultsAsync;
+        }
     }
 }

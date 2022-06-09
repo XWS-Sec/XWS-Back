@@ -36,6 +36,7 @@ namespace Users.Graph.Handlers.Handlers.Follow
                 Followers = await _getFollowStatsService.GetFollowers(message.UserId),
                 Following = await _getFollowStatsService.GetFollowing(message.UserId),
                 FollowRequests = await _getFollowStatsService.GetFollowRequests(message.UserId),
+                FollowRequested = await _getFollowStatsService.GetFollowRequested(message.UserId),
                 IsSuccessful = true,
                 MessageToLog = $"Success!",
                 CorrelationId = message.CorrelationId,

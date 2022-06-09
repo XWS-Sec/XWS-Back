@@ -12,5 +12,6 @@ namespace BaseApi.Messages.Notifications
         public IEnumerable<UserNotificationDto> Following { get; set; }
         public IEnumerable<UserNotificationDto> Followers { get; set; }
         public IEnumerable<UserNotificationDto> FollowRequests { get; set; }
+        public IEnumerable<UserNotificationDto> FollowRequested { get; set; }
     }
 }
