@@ -6,6 +6,7 @@ using BaseApi.CustomAttributes;
 using BaseApi.Dto.Posts;
 using BaseApi.Messages;
 using BaseApi.Model.Mongo;
+using Ganss.XSS;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -52,6 +53,14 @@ namespace BaseApi.Controllers
         [TypeFilter(typeof(CustomAuthorizeAttribute))]
         public async Task<IActionResult> Post([FromForm] PostDto newPost)
         {
+            var sanitizer = new HtmlSanitizer();
+            var sanitizedText = sanitizer.Sanitize(newPost.Text);
+
+            if (sanitizedText != newPost.Text)
+            {
+                return BadRequest("XSS detected, automatically rejecting");
+            }
+
             var userId = Guid.Parse(_userManager.GetUserId(User));
 
             byte[] bytes = null;
@@ -80,6 +89,14 @@ namespace BaseApi.Controllers
         [TypeFilter(typeof(CustomAuthorizeAttribute))]
         public async Task<IActionResult> Put([FromRoute] Guid postId, [FromForm] PostDto postDto)
         {
+            var sanitizer = new HtmlSanitizer();
+            var sanitizedText = sanitizer.Sanitize(postDto.Text);
+
+            if (sanitizedText != postDto.Text)
+            {
+                return BadRequest("XSS detected, automatically rejecting");
+            }
+            
             var userId = Guid.Parse(_userManager.GetUserId(User));
 
             byte[] bytes = null;
