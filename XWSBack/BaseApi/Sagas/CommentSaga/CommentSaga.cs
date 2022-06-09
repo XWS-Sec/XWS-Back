@@ -121,7 +121,7 @@ namespace BaseApi.Sagas.CommentSaga
 
             await context.SendLocal(new StandardNotification()
             {
-                Message = JsonConvert.SerializeObject(message.EditedPost),
+                Message = JsonConvert.SerializeObject(message.CreatedComment),
                 CorrelationId = Data.CorrelationId,
                 IsSuccessful = true,
                 UserId = Guid.NewGuid()

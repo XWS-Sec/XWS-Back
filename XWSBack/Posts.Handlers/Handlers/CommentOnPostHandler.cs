@@ -41,20 +41,21 @@ namespace Posts.Handlers.Handlers
             {
                 post.Comments = new List<Comment>();
             }
-            
-            post.Comments.Add(new Comment()
+
+            var comment = new Comment()
             {
                 Text = message.Text,
                 CommenterId = message.UserId,
                 DateCreated = DateTime.Now
-            });
+            };
+            post.Comments.Add(comment);
 
             await _postsCollection.FindOneAndReplaceAsync(x => x.Id == message.PostId, post);
 
             await context.Reply(new CommentResponse()
             {
                 CorrelationId = message.CorrelationId,
-                EditedPost = _mapper.Map<PostDto>(post),
+                CreatedComment = _mapper.Map<CommentDto>(comment),
                 IsSuccessful = true
             }).ConfigureAwait(false);
         }

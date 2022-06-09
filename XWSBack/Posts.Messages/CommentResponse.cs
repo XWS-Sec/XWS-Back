@@ -8,6 +8,6 @@ namespace Posts.Messages
     {
         public Guid CorrelationId { get; set; }
         public bool IsSuccessful { get; set; }
-        public PostDto EditedPost { get; set; }
+        public CommentDto CreatedComment { get; set; }
     }
 }
