@@ -55,7 +55,7 @@ namespace Users.Graph.Handlers.Handlers.Follow
             await context.Reply(new CreateFollowLinkResponse()
             {
                 IsSuccessful = true,
-                MessageToLog = "Successful",
+                MessageToLog = message.IsReceiverPrivate ? "Requested" : "Followed",
                 CorrelationId = message.CorrelationId
             }).ConfigureAwait(false);
         }

@@ -143,5 +143,46 @@ namespace BaseApi.Controllers
 
             return ReturnBaseNotification(response);
         }
+
+        [HttpPost("like/{postId}")]
+        [TypeFilter(typeof(CustomAuthorizeAttribute))]
+        public async Task<IActionResult> LikePost(Guid postId)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+
+            var request = new BeginLikeDislikeRequest()
+            {
+                CorrelationId = Guid.NewGuid(),
+                PostId = postId,
+                UserId = userId,
+                IsLike = true
+            };
+            await _session.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
+        }
+        
+        [HttpPost("dislike/{postId}")]
+        [TypeFilter(typeof(CustomAuthorizeAttribute))]
+        public async Task<IActionResult> DislikePost(Guid postId)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+
+            var request = new BeginLikeDislikeRequest()
+            {
+                CorrelationId = Guid.NewGuid(),
+                PostId = postId,
+                UserId = userId,
+                IsLike = false
+            };
+            await _session.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
+        }
+        
     }
 }
