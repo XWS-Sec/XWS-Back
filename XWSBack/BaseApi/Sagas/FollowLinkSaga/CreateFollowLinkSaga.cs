@@ -70,7 +70,7 @@ namespace BaseApi.Sagas.FollowLinkSaga
 
             await context.SendLocal(new StandardNotification()
             {
-                Message = "Successful!",
+                Message = message.MessageToLog,
                 IsSuccessful = true,
                 UserId = Data.Sender,
                 CorrelationId = Data.CorrelationId
