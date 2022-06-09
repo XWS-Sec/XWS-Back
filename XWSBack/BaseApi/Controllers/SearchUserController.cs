@@ -8,6 +8,7 @@ using BaseApi.Model.Mongo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 
 namespace BaseApi.Controllers
 {
@@ -32,7 +33,7 @@ namespace BaseApi.Controllers
                                                              x.Name.Contains(criteria) ||
                                                              x.Surname.Contains(criteria));
 
-            return Ok(users.ToEnumerable().Where(x => x.Id != userId));
+            return Ok(JsonConvert.SerializeObject(users.ToEnumerable().Where(x => x.Id != userId)));
         }
 
         [HttpGet("username/{username}")]
@@ -40,7 +41,7 @@ namespace BaseApi.Controllers
         {
             var users = await _userCollection.FindAsync(x => x.Username == username);
 
-            return Ok(users.FirstOrDefault());
+            return Ok(JsonConvert.SerializeObject(users.FirstOrDefault()));
         }
 
         [HttpGet("id/{userId}")]
@@ -50,14 +51,14 @@ namespace BaseApi.Controllers
 
             return user == null
                 ? BadRequest("User with that id is not present")
-                : Ok(new SearchedUserDto()
+                : Ok(JsonConvert.SerializeObject(new SearchedUserDto()
                 {
                     Name = user.Name,
                     Surname = user.Surname,
                     Id = user.Id,
                     Username = user.UserName,
                     IsPrivate = user.IsPrivate
-                });
+                }));
         }
     }
 }

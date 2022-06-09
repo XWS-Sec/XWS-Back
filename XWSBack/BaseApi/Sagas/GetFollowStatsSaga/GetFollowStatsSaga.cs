@@ -64,6 +64,7 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
             var followers = await FindUsers(message.Followers);
             var following = await FindUsers(message.Following);
             var followRequests = await FindUsers(message.FollowRequests);
+            var followRequested = await FindUsers(message.FollowRequested);
 
             await context.SendLocal(new FollowStatsNotification()
             {
@@ -71,6 +72,7 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
                 Followers = followers,
                 Following = following,
                 FollowRequests = followRequests,
+                FollowRequested = followRequested,
                 CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             MarkAsComplete();
