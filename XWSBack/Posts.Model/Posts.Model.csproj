@@ -5,8 +5,4 @@
         <RootNamespace>Posts.Model</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="MongoDB.Bson" Version="2.15.0" />
-    </ItemGroup>
-
 </Project>
