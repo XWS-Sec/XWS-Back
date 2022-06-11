@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,9 +51,9 @@ namespace BaseApi.Middleware
                 }
             }
 
-            foreach (var queryParam in httpContext.Request.Query)
+            foreach (var queryParam in httpContext.Request.Query.Select(x => x.Value))
             {
-                var raw = queryParam.Value;
+                var raw = queryParam;
                 var sanitized = sanitizer.Sanitize(raw);
                 if (raw != sanitized)
                 {
