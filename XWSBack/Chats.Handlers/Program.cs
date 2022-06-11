@@ -65,7 +65,7 @@ namespace Chats.Handlers
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.ChatHandlers);
-                    var routing = endpointConfig.Configure(EndpointInstances.ChatHandlers);
+                    endpointConfig.Configure(EndpointInstances.ChatHandlers);
 
                     return endpointConfig;
                 });

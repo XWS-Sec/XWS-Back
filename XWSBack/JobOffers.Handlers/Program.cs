@@ -68,7 +68,7 @@ namespace JobOffers.Handlers
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.JobOffersHandlers);
-                    var routing = endpointConfig.Configure(EndpointInstances.JobOffersHandlers);
+                    endpointConfig.Configure(EndpointInstances.JobOffersHandlers);
 
                     return endpointConfig;
                 });

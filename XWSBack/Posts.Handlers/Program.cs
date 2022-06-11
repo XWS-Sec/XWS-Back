@@ -64,7 +64,7 @@ namespace Posts.Handlers
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.PostHandlers);
-                    var routing = endpointConfig.Configure(EndpointInstances.PostHandlers);
+                    endpointConfig.Configure(EndpointInstances.PostHandlers);
 
                     return endpointConfig;
                 });

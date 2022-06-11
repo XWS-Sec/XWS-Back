@@ -28,10 +28,11 @@ namespace BaseApi.Sagas.LikeDislikeSaga
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<LikeDislikeSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginLikeDislikeRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetUserByPostResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<LikeDislikeResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginLikeDislikeRequest>(m => m.CorrelationId)
+                .ToMessage<GetUserByPostResponse>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId)
+                .ToMessage<LikeDislikeResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginLikeDislikeRequest message, IMessageHandlerContext context)
@@ -54,30 +55,6 @@ namespace BaseApi.Sagas.LikeDislikeSaga
                 CorrelationId = Data.CorrelationId,
                 PostId = Data.PostId
             }).ConfigureAwait(false);
-        }
-
-        private async Task<string> ValidateMessage(BeginLikeDislikeRequest message)
-        {
-            var retVal = string.Empty;
-
-            if (message.PostId == Guid.Empty)
-            {
-                retVal += "Post is mandatory\n";
-            }
-
-            if (message.UserId == Guid.Empty)
-            {
-                retVal += "User is mandatory\n";
-            }
-            else
-            {
-                if (await _userManager.FindByIdAsync(message.UserId.ToString()) == null)
-                {
-                    retVal += "User not found\n";
-                }
-            }
-            
-            return retVal;
         }
 
         public async Task Handle(GetUserByPostResponse message, IMessageHandlerContext context)
@@ -157,6 +134,30 @@ namespace BaseApi.Sagas.LikeDislikeSaga
         public async Task Timeout(BaseTimeout state, IMessageHandlerContext context)
         {
             await FailSaga(context, "Timeout");
+        }
+        
+        private async Task<string> ValidateMessage(BeginLikeDislikeRequest message)
+        {
+            var retVal = string.Empty;
+
+            if (message.PostId == Guid.Empty)
+            {
+                retVal += "Post is mandatory\n";
+            }
+
+            if (message.UserId == Guid.Empty)
+            {
+                retVal += "User is mandatory\n";
+            }
+            else
+            {
+                if (await _userManager.FindByIdAsync(message.UserId.ToString()) == null)
+                {
+                    retVal += "User not found\n";
+                }
+            }
+            
+            return retVal;
         }
         
         private async Task FailSaga(IMessageHandlerContext context, string reason)

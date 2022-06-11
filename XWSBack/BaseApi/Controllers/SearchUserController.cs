@@ -28,16 +28,14 @@ namespace BaseApi.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(string criteria)
         {
-            var userId = Guid.Empty;
-            try
-            {
-                userId = Guid.Parse(_userManager.GetUserId(User));
-            }
-            catch (Exception e) {}
             var users = await _userCollection.FindAsync(x => x.Username.Contains(criteria) ||
                                                              x.Name.Contains(criteria) ||
                                                              x.Surname.Contains(criteria));
-
+            var userId = Guid.Empty;
+            if (_userManager.GetUserId(User) != null)
+            {
+                userId = Guid.Parse(_userManager.GetUserId(User));   
+            }
             return Ok(JsonConvert.SerializeObject(users.ToEnumerable().Where(x => x.Id != userId)));
         }
 

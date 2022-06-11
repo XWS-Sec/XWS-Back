@@ -25,8 +25,9 @@ namespace BaseApi.Sagas.GetBasicJobOffersSaga
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetBasicJobOffersSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginGetBasicJobOffersRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetBasicJobOffersResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginGetBasicJobOffersRequest>(m => m.CorrelationId)
+                .ToMessage<GetBasicJobOffersResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginGetBasicJobOffersRequest message, IMessageHandlerContext context)

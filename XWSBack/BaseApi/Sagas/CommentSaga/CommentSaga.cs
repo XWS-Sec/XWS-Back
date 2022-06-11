@@ -29,9 +29,10 @@ namespace BaseApi.Sagas.CommentSaga
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CommentSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginCommentRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<CommentResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginCommentRequest>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId)
+                .ToMessage<CommentResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginCommentRequest message, IMessageHandlerContext context)

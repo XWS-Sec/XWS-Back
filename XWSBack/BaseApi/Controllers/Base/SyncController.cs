@@ -9,7 +9,7 @@ namespace BaseApi.Controllers.Base
 {
     public class SyncController : ControllerBase
     {
-        private IMemoryCache _memoryCache;
+        private readonly IMemoryCache _memoryCache;
 
         private static int RetryInterval = 100;
         private int _maxRetryCounter = 50;

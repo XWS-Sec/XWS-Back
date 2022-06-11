@@ -27,7 +27,7 @@ namespace BaseApi.Notifications
             _memoryCache = memoryCache;
         }
 
-        private ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
+        private static ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
         
         public async Task Handle(PostsNotification message, IMessageHandlerContext context)
         {

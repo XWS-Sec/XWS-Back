@@ -19,8 +19,8 @@ namespace BaseApi.Notifications
         private readonly ILogger<FollowStatsNotificationHandler> _logger;
         private readonly IHubContext<BaseHub> _hub;
         private readonly MemoryCacheEntryOptions _memoryCacheEntryOptions;
-        private ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
-        private IMemoryCache _memoryCache;
+        private static ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
+        private readonly IMemoryCache _memoryCache;
 
         public FollowStatsNotificationHandler(ILogger<FollowStatsNotificationHandler> logger, IHubContext<BaseHub> hub, IMemoryCache memoryCache, MemoryCacheEntryOptions memoryCacheEntryOptions)
         {

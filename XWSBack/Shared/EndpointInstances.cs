@@ -2,10 +2,10 @@
 {
     public static class EndpointInstances
     {
-        public static string BaseApiEndpoint = "BaseApi";
-        public static string PostHandlers = "PostsHandlers";
-        public static string ChatHandlers = "ChatsHandlers";
-        public static string UserGraphHandlers = "UsersGraphHandlers";
-        public static string JobOffersHandlers = "JobOffersEndpoint";
+        public const string BaseApiEndpoint = "BaseApi";
+        public const string PostHandlers = "PostsHandlers";
+        public const string ChatHandlers = "ChatsHandlers";
+        public const string UserGraphHandlers = "UsersGraphHandlers";
+        public const string JobOffersHandlers = "JobOffersEndpoint";
     }
 }

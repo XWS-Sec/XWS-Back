@@ -24,8 +24,9 @@ namespace BaseApi.Sagas.AnswerFollowSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AnswerFollowSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginAnswerFollowRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<AnswerFollowResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginAnswerFollowRequest>(m => m.CorrelationId)
+                .ToMessage<AnswerFollowResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginAnswerFollowRequest message, IMessageHandlerContext context)
