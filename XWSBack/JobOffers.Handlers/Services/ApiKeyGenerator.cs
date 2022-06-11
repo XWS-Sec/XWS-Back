@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,7 +11,6 @@ namespace JobOffers.Handlers.Services
 {
     public class ApiKeyGenerator
     {
-        const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefhijklmnopqrstuvwxyz";
         private const string Prefix = "XWS.";
         
         private readonly IMongoCollection<Company> _companyCollection;
@@ -24,13 +24,14 @@ namespace JobOffers.Handlers.Services
 
         public async Task<string> GetApiKey()
         {
-            bool shouldNotStop = true;
-            string apiKey = string.Empty;
+            var shouldNotStop = true;
+            var apiKey = string.Empty;
             do
             {
-                var random = new Random();
-                apiKey = new string(Enumerable.Repeat(Chars, 26)
-                    .Select(s => s[random.Next(s.Length)]).ToArray());
+                var randomGenerator = RandomNumberGenerator.Create();
+                var bytes = new byte[128];
+                randomGenerator.GetBytes(bytes);
+                apiKey = Convert.ToBase64String(bytes);
                 apiKey = Prefix + apiKey;
 
                 var hashed = ComputeHash(apiKey);

@@ -24,8 +24,9 @@ namespace BaseApi.Sagas.UnfollowSaga
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<UnfollowSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginUnfollowRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<UnfollowResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginUnfollowRequest>(m => m.CorrelationId)
+                .ToMessage<UnfollowResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginUnfollowRequest message, IMessageHandlerContext context)

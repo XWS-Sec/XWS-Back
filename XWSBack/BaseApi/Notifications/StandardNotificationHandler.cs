@@ -20,7 +20,7 @@ namespace BaseApi.Notifications
         private readonly IHubContext<BaseHub> _hub;
         private readonly IMemoryCache _memoryCache;
         private readonly MemoryCacheEntryOptions _memoryCacheEntryOptions;
-        private ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
+        private static ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
 
         public StandardNotificationHandler(ILogger<StandardNotificationHandler> logger, IHubContext<BaseHub> hub, IMemoryCache memoryCache, MemoryCacheEntryOptions memoryCacheEntryOptions)
         {

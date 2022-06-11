@@ -17,8 +17,8 @@ namespace BaseApi.Notifications
         private readonly ILogger<GetJobOffersNotificationHandler> _logger;
         private readonly IHubContext<BaseHub> _hub;
         private readonly MemoryCacheEntryOptions _memoryCacheEntryOptions;
-        private ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
-        private IMemoryCache _memoryCache;
+        private static ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
+        private readonly IMemoryCache _memoryCache;
 
         public GetJobOffersNotificationHandler(ILogger<GetJobOffersNotificationHandler> logger, IHubContext<BaseHub> hub, MemoryCacheEntryOptions memoryCacheEntryOptions, IMemoryCache memoryCache)
         {

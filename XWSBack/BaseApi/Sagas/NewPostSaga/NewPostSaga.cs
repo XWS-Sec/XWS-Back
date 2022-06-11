@@ -30,9 +30,10 @@ namespace BaseApi.Sagas.NewPostSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NewPostSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginNewPostRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<NewPostResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginNewPostRequest>(m => m.CorrelationId)
+                .ToMessage<NewPostResponse>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginNewPostRequest message, IMessageHandlerContext context)

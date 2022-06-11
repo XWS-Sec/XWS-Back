@@ -14,7 +14,7 @@ namespace BaseApi.Notifications
     {
         private readonly ILogger<NewMessageNotificationHandler> _logger;
         private readonly IHubContext<BaseHub> _hub;
-        private ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
+        private static ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
 
         public NewMessageNotificationHandler(IHubContext<BaseHub> hub, ILogger<NewMessageNotificationHandler> logger)
         {

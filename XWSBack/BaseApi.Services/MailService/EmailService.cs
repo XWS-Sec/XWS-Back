@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BaseApi.Services.ConfigurationContracts;
+using BaseApi.Services.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic;
 using SendGrid;
@@ -12,7 +13,6 @@ namespace BaseApi.Services.MailService
     {
         private readonly SendGridContract _sendGridContract;
         private readonly ILogger<EmailService> _logger;
-        private SendGridClient _client;
 
         private const string VerificationTemplate = "d-ce89fa0a658b45b9bfd46ed0712e1cc8";
         private const string VerificationLinkTemplate = "https://localhost:44322/api/Register/Confirm?userId={0}&token={1}";
@@ -81,9 +81,9 @@ namespace BaseApi.Services.MailService
         
         private async Task SendTemplatedMail(SendGridMessage message, string email)
         {
-            _client = new SendGridClient(_sendGridContract.Secret);
+            var client = new SendGridClient(_sendGridContract.Secret);
 
-            var response = await _client.SendEmailAsync(message);
+            var response = await client.SendEmailAsync(message);
             
             if (response.IsSuccessStatusCode)
             {
@@ -94,7 +94,7 @@ namespace BaseApi.Services.MailService
                 var formatted = string.Format(FailedMail, email);
                 _logger.LogInformation(formatted);
                 _logger.LogInformation(await response.Body.ReadAsStringAsync());
-                throw new Exception(formatted);
+                throw new EmailingException(formatted);
             }
         }
     }

@@ -64,7 +64,7 @@ namespace BaseApi.Services.UserServices
             }
             else
             {
-                throw new Exception("Unknown issuer " + issuer);
+                throw new ValidationException("Unknown issuer " + issuer);
             }
         }
 
@@ -78,7 +78,7 @@ namespace BaseApi.Services.UserServices
             var isValid = await _userManager.VerifyUserTokenAsync(user, TokenProviderName, TokenReason, accessToken);
             if (!isValid)
             {
-                throw new Exception("Token is not valid!");
+                throw new ValidationException("Token is not valid!");
             }
 
             await Login(user);
@@ -120,7 +120,7 @@ namespace BaseApi.Services.UserServices
             await _signInManager.SignInAsync(user, false, null);
         }
 
-        private void ValidateUser(User user)
+        private static void ValidateUser(User user)
         {
             if (user == null)
                 throw new ValidationException("User not found");

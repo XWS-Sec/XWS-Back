@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BaseApi.Services.Exceptions;
 using BaseApi.Services.JsonConvertedContracts;
 using BaseApi.Services.PasswordlessSettings;
 using Newtonsoft.Json;
@@ -28,7 +29,7 @@ namespace BaseApi.Services.UserServices
             var result = await _httpClientFactory.CreateClient().GetAsync(formattedUrl);
 
             if (!result.IsSuccessStatusCode)
-                throw new Exception("Couldn't reach facebook api");
+                throw new FacebookException("Couldn't reach facebook api");
 
             var responseAsString = await result.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<FacebookValidationResponse>(responseAsString);
@@ -41,7 +42,7 @@ namespace BaseApi.Services.UserServices
             var result = await _httpClientFactory.CreateClient().GetAsync(formattedUrl);
 
             if (!result.IsSuccessStatusCode)
-                throw new Exception("Couldn't reach facebook api");
+                throw new FacebookException("Couldn't reach facebook api");
 
             var responseAsString = await result.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<FacebookUserInfoResponse>(responseAsString);

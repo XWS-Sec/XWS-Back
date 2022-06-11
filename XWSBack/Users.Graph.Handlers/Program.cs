@@ -66,7 +66,7 @@ namespace Users.Graph.Handlers
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.UserGraphHandlers);
-                    var routing = endpointConfig.Configure(EndpointInstances.UserGraphHandlers);
+                    endpointConfig.Configure(EndpointInstances.UserGraphHandlers);
 
                     return endpointConfig;
                 });

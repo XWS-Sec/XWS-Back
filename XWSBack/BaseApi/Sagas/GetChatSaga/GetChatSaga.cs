@@ -32,9 +32,10 @@ namespace BaseApi.Sagas.GetChatSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetChatSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginGetChatRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetChatResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginGetChatRequest>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId)
+                .ToMessage<GetChatResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginGetChatRequest message, IMessageHandlerContext context)

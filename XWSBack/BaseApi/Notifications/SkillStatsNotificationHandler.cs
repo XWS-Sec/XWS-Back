@@ -18,7 +18,7 @@ namespace BaseApi.Notifications
         private readonly IHubContext<BaseHub> _hub;
         private readonly MemoryCacheEntryOptions _memoryCacheEntryOptions;
         private readonly IMemoryCache _memoryCache;
-        private ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
+        private static ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
 
         public SkillStatsNotificationHandler(ILogger<SkillStatsNotificationHandler> logger, IHubContext<BaseHub> hub, MemoryCacheEntryOptions memoryCacheEntryOptions, IMemoryCache memoryCache)
         {

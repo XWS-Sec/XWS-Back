@@ -1,4 +1,5 @@
 ﻿using System;
+using BaseApi.Services.Exceptions;
 
 namespace BaseApi.Services.ConfigurationContracts
 {
@@ -8,7 +9,7 @@ namespace BaseApi.Services.ConfigurationContracts
         {
             var envSecret = Environment.GetEnvironmentVariable("XWS_SENDGRID");
             if (string.IsNullOrEmpty(envSecret))
-                throw new Exception("Sendgrid api key missing");
+                throw new ValidationException("Sendgrid api key missing");
 
             Secret = envSecret;
             From = "milosavljevic.ra5.2018@uns.ac.rs";

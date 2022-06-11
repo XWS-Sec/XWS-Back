@@ -15,8 +15,9 @@ namespace BaseApi.Sagas.PublishNewJobOfferSaga
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PublishNewJobOfferSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginPublishNewJobOffer>(x => x.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<PublishNewJobOfferResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginPublishNewJobOffer>(m => m.CorrelationId)
+                .ToMessage<PublishNewJobOfferResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginPublishNewJobOffer message, IMessageHandlerContext context)
@@ -62,14 +63,14 @@ namespace BaseApi.Sagas.PublishNewJobOfferSaga
             MarkAsComplete();
         }
 
-        public Task Timeout(BaseTimeout state, IMessageHandlerContext context)
+        public async Task Timeout(BaseTimeout state, IMessageHandlerContext context)
         {
-            throw new System.NotImplementedException();
+            await FailSaga(context, "Timeout");
         }
 
-        private string Validate(BeginPublishNewJobOffer message)
+        private static string Validate(BeginPublishNewJobOffer message)
         {
-            string retVal = string.Empty;
+            var retVal = string.Empty;
 
             if (string.IsNullOrEmpty(message.Description))
                 retVal += "Description is mandatory\n";

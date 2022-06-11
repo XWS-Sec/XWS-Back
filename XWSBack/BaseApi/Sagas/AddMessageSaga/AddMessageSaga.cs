@@ -28,9 +28,10 @@ namespace BaseApi.Sagas.AddMessageSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AddMessageSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginAddMessageRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<AddMessageResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginAddMessageRequest>(m => m.CorrelationId)
+                .ToMessage<AddMessageResponse>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginAddMessageRequest message, IMessageHandlerContext context)

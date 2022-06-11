@@ -24,7 +24,7 @@ namespace JobOffers.Handlers.Handlers
         public async Task Handle(GetBasicJobOffersRequest message, IMessageHandlerContext context)
         {
             var companyCursors =
-                await _companyCollection.FindAsync(x => x.JobOffers != null && x.JobOffers.Count() != 0);
+                await _companyCollection.FindAsync(x => x.JobOffers != null && x.JobOffers.Any());
 
             var companies = companyCursors.ToEnumerable();
             var jobOffers = companies.SelectMany(x => x.JobOffers).ToList();

@@ -15,7 +15,9 @@ namespace BaseApi.Sagas.CreateCompanySaga
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CreateCompanySagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginCreateCompanyRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginCreateCompanyRequest>(m => m.CorrelationId)
+                .ToMessage<CreateCompanyResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginCreateCompanyRequest message, IMessageHandlerContext context)
@@ -77,7 +79,7 @@ namespace BaseApi.Sagas.CreateCompanySaga
             MarkAsComplete();
         }
 
-        private string Validate(BeginCreateCompanyRequest message)
+        private static string Validate(BeginCreateCompanyRequest message)
         {
             var retVal = string.Empty;
 

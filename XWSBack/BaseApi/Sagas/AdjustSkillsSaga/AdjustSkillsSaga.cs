@@ -24,7 +24,8 @@ namespace BaseApi.Sagas.AdjustSkillsSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AdjustSkillsSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginAdjustSkillsRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginAdjustSkillsRequest>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginAdjustSkillsRequest message, IMessageHandlerContext context)
