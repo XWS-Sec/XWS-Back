@@ -102,7 +102,6 @@ namespace BaseApi.Sagas.AddMessageSaga
                 await FailSaga(context, "The user is blocking you").ConfigureAwait(false);
                 return;
             }
-            
 
             await context.Send(new AddMessageRequest()
             {
