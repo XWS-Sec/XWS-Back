@@ -11,6 +11,10 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using BaseApi.Controllers.Base;
+using BaseApi.Messages;
+using Microsoft.Extensions.Caching.Memory;
+using NServiceBus;
 
 namespace BaseApi.Controllers
 {
@@ -23,12 +27,16 @@ namespace BaseApi.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
         private readonly EditUserService _editUserService;
+        private readonly ChangeUserVisibilityService _changeUserVisibilityService;
+        private readonly IMessageSession _session;
 
-        public UserController(UserManager<User> userManager, IMapper mapper, EditUserService editUserService)
+        public UserController(UserManager<User> userManager, IMapper mapper, EditUserService editUserService, ChangeUserVisibilityService changeUserVisibilityService, IMessageSession session)
         {
             _userManager = userManager;
             _mapper = mapper;
             _editUserService = editUserService;
+            _changeUserVisibilityService = changeUserVisibilityService;
+            _session = session;
         }
 
         [HttpPut]
@@ -75,5 +83,31 @@ namespace BaseApi.Controllers
             return Ok("Password succesfully changed!");
         }
 
+        [HttpPut("/changeVisibility/{isPrivate}")]
+        public async Task<IActionResult> ChangeVisibility(bool isPrivate)
+        {
+            var user = Guid.Parse(_userManager.GetUserId(User));
+            try
+            {
+                await _changeUserVisibilityService.ChangeVisibility(user, isPrivate);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            if (!isPrivate)
+            {
+                var request = new BeginAnswerAllFollowRequestsRequest()
+                {
+                    CorrelationId = Guid.NewGuid(),
+                    UserId = user
+                };
+
+                await _session.SendLocal(request).ConfigureAwait(false);   
+            }
+            
+            return Ok("Successfully changed the visibility");
+        }
     }
 }
