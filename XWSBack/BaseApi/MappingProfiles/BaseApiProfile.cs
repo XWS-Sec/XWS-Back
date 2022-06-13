@@ -21,6 +21,7 @@ namespace BaseApi.MappingProfiles
             CreateMap<MessageDto, MessageNotificationDto>();
             CreateMap<CreateMilestoneDto, Milestone>();
             CreateMap<JobOfferDto, JobOfferNotificationDto>();
+            CreateMap<NotificationConfigurationDto, NotificationConfiguration>().ReverseMap();
         }
     }
 }
