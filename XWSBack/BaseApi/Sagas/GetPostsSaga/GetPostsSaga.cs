@@ -55,18 +55,15 @@ namespace BaseApi.Sagas.GetPostsSaga
                 return;
             }
 
-            if (message.RequestedUserId != Guid.Empty)
+            if (message.RequestedUserId != Guid.Empty && Data.RequestedUserId == Data.UserId)
             {
-                if (Data.RequestedUserId == Data.UserId)
+                await context.Send(new GetPostsRequest()
                 {
-                    await context.Send(new GetPostsRequest()
-                    {
-                        Page = Data.Page,
-                        CorrelationId = Data.CorrelationId,
-                        PostsOwners = new List<Guid>() { Data.RequestedUserId }
-                    }).ConfigureAwait(false);
-                    return;
-                }
+                    Page = Data.Page,
+                    CorrelationId = Data.CorrelationId,
+                    PostsOwners = new List<Guid>() { Data.RequestedUserId }
+                }).ConfigureAwait(false);
+                return;
             }
 
             await context.Send(new GetFollowStatsRequest()

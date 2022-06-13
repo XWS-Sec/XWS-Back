@@ -96,13 +96,10 @@ namespace BaseApi.Sagas.CommentSaga
             
             var postOwner = await _userManager.FindByIdAsync(Data.PostOwnerId.ToString());
 
-            if (postOwner.IsPrivate)
+            if (postOwner.IsPrivate && !message.Following.Contains(Data.PostOwnerId))
             {
-                if (message.Following.FirstOrDefault(x => x == Data.PostOwnerId) == Guid.Empty)
-                {
-                    await FailSaga(context, "You do not follow that user");
-                    return;
-                }
+                await FailSaga(context, "You do not follow that user");
+                return;
             }
             
             await context.Send(new CommentRequest()
