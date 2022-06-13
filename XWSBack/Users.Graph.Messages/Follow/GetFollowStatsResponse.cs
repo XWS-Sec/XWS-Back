@@ -15,5 +15,7 @@ namespace Users.Graph.Messages.Follow
         public IEnumerable<Guid> Followers { get; set; }
         public IEnumerable<Guid> FollowRequests { get; set; }
         public IEnumerable<Guid> FollowRequested { get; set; }
+        public IEnumerable<Guid> Blocked { get; set; }
+        public IEnumerable<Guid> BlockedFrom { get; set; }
     }
 }

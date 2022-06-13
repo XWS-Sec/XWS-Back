@@ -78,6 +78,8 @@ namespace BaseApi
                     routing.RouteToEndpoint(typeof(UnfollowRequest), EndpointInstances.UserGraphHandlers);
                     routing.RouteToEndpoint(typeof(AdjustSkillsRequest), EndpointInstances.UserGraphHandlers);
                     routing.RouteToEndpoint(typeof(GetSkillsRequest), EndpointInstances.UserGraphHandlers);
+                    routing.RouteToEndpoint(typeof(BlockRequest), EndpointInstances.UserGraphHandlers);
+                    routing.RouteToEndpoint(typeof(UnblockRequest), EndpointInstances.UserGraphHandlers);
                     
                     routing.RouteToEndpoint(typeof(NewPostRequest), EndpointInstances.PostHandlers);
                     routing.RouteToEndpoint(typeof(EditPostRequest), EndpointInstances.PostHandlers);

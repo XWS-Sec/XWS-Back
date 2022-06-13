@@ -96,5 +96,41 @@ namespace BaseApi.Controllers
 
             return ReturnBaseNotification(response);
         }
+
+        [HttpPost("block/{userToBlock}")]
+        public async Task<IActionResult> Block(Guid userToBlock)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+            var request = new BeginBlockUnblockRequest()
+            {
+                CorrelationId = Guid.NewGuid(),
+                IsBlock = true,
+                UserId = userId,
+                OtherUserId = userToBlock
+            };
+            await _messageSession.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
+        }
+        
+        [HttpPost("unblock/{userToUnblock}")]
+        public async Task<IActionResult> Unblock(Guid userToUnblock)
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+            var request = new BeginBlockUnblockRequest()
+            {
+                CorrelationId = Guid.NewGuid(),
+                IsBlock = false,
+                UserId = userId,
+                OtherUserId = userToUnblock
+            };
+            await _messageSession.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
+        }
     }
 }

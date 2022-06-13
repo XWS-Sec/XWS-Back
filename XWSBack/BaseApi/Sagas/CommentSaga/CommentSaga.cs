@@ -67,26 +67,11 @@ namespace BaseApi.Sagas.CommentSaga
 
             Data.PostOwnerId = message.PostOwnerId;
             
-            var postOwner = await _userManager.FindByIdAsync(message.PostOwnerId.ToString());
-
-            if (postOwner.IsPrivate)
+            await context.Send(new GetFollowStatsRequest()
             {
-                await context.Send(new GetFollowStatsRequest()
-                {
-                    CorrelationId = Data.CorrelationId,
-                    UserId = Data.UserId
-                }).ConfigureAwait(false);
-            }
-            else
-            {
-                await context.Send(new CommentRequest()
-                {
-                    Text = Data.Text,
-                    CorrelationId = Data.CorrelationId,
-                    PostId = Data.PostId,
-                    UserId = Data.UserId
-                }).ConfigureAwait(false);
-            }
+                CorrelationId = Data.CorrelationId,
+                UserId = Data.UserId
+            }).ConfigureAwait(false);
         }
         
         public async Task Handle(GetFollowStatsResponse message, IMessageHandlerContext context)
@@ -97,12 +82,29 @@ namespace BaseApi.Sagas.CommentSaga
                 return;
             }
 
-            if (message.Following.FirstOrDefault(x => x == Data.PostOwnerId) == Guid.Empty)
+            if (message.Blocked.Contains(Data.PostOwnerId))
             {
-                await FailSaga(context, "You do not follow that user");
+                await FailSaga(context, "You block the owner of that post");
                 return;
             }
 
+            if (message.BlockedFrom.Contains(Data.PostOwnerId))
+            {
+                await FailSaga(context, "The owner of the post is blocking you");
+                return;
+            }
+            
+            var postOwner = await _userManager.FindByIdAsync(Data.PostOwnerId.ToString());
+
+            if (postOwner.IsPrivate)
+            {
+                if (message.Following.FirstOrDefault(x => x == Data.PostOwnerId) == Guid.Empty)
+                {
+                    await FailSaga(context, "You do not follow that user");
+                    return;
+                }
+            }
+            
             await context.Send(new CommentRequest()
             {
                 Text = Data.Text,

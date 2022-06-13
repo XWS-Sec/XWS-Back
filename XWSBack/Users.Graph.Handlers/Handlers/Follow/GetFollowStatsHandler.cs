@@ -33,10 +33,12 @@ namespace Users.Graph.Handlers.Handlers.Follow
 
             await context.Reply(new GetFollowStatsResponse()
             {
-                Followers = await _getFollowStatsService.GetFollowers(message.UserId),
-                Following = await _getFollowStatsService.GetFollowing(message.UserId),
-                FollowRequests = await _getFollowStatsService.GetFollowRequests(message.UserId),
-                FollowRequested = await _getFollowStatsService.GetFollowRequested(message.UserId),
+                Followers = await _getFollowStatsService.GetIdsToMe(message.UserId, "follows"),
+                Following = await _getFollowStatsService.GetIdsFromMe(message.UserId, "follows"),
+                FollowRequests = await _getFollowStatsService.GetIdsToMe(message.UserId, "followRequest"),
+                FollowRequested = await _getFollowStatsService.GetIdsFromMe(message.UserId, "followRequest"),
+                Blocked = await _getFollowStatsService.GetIdsFromMe(message.UserId, "blocks"),
+                BlockedFrom = await _getFollowStatsService.GetIdsToMe(message.UserId, "blocks"),
                 IsSuccessful = true,
                 MessageToLog = $"Success!",
                 CorrelationId = message.CorrelationId,

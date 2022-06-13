@@ -57,9 +57,7 @@ namespace BaseApi.Sagas.GetPostsSaga
 
             if (message.RequestedUserId != Guid.Empty)
             {
-                var requestedUser = await _userManager.FindByIdAsync(Data.RequestedUserId.ToString());
-
-                if (Data.RequestedUserId == Data.UserId || !requestedUser.IsPrivate)
+                if (Data.RequestedUserId == Data.UserId)
                 {
                     await context.Send(new GetPostsRequest()
                     {
@@ -93,6 +91,25 @@ namespace BaseApi.Sagas.GetPostsSaga
 
             if (Data.RequestedUserId != Guid.Empty)
             {
+                if (message.Blocked.Contains(Data.RequestedUserId))
+                {
+                    await FailSaga(context, "You are blocking that user");
+                    return;
+                }
+
+                if (message.BlockedFrom.Contains(Data.RequestedUserId))
+                {
+                    await FailSaga(context, "That user is blocking you");
+                    return;
+                }
+                
+                var user = await _userManager.FindByIdAsync(Data.RequestedUserId.ToString());
+                if (user.IsPrivate && !message.Following.Contains(Data.RequestedUserId))
+                {
+                    await FailSaga(context, "User is private and not followed").ConfigureAwait(false);
+                    return;
+                }
+                
                 if (message.Following.Contains(Data.RequestedUserId))
                 {
                     await context.Send(new GetPostsRequest()
@@ -103,9 +120,6 @@ namespace BaseApi.Sagas.GetPostsSaga
                     }).ConfigureAwait(false);
                     return;
                 }
-                
-                await FailSaga(context, "User is private and not followed").ConfigureAwait(false);
-                return;
             }
 
             await context.Send(new GetPostsRequest()

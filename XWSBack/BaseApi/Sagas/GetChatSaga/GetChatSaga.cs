@@ -76,6 +76,18 @@ namespace BaseApi.Sagas.GetChatSaga
                 return;
             }
 
+            if (message.Blocked.Contains(Data.OtherUserId))
+            {
+                await FailSaga(context, "You are blocking the other user");
+                return;
+            }
+
+            if (message.BlockedFrom.Contains(Data.OtherUserId))
+            {
+                await FailSaga(context, "The other user is blocking you");
+                return;
+            }
+            
             await context.Send(new GetChatRequest()
             {
                 Page = Data.Page,

@@ -66,6 +66,8 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
             var following = await FindUsers(message.Following);
             var followRequests = await FindUsers(message.FollowRequests);
             var followRequested = await FindUsers(message.FollowRequested);
+            var blocks = await FindUsers(message.Blocked);
+            var blockedFrom = await FindUsers(message.BlockedFrom);
 
             await context.SendLocal(new FollowStatsNotification()
             {
@@ -74,6 +76,8 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
                 Following = following,
                 FollowRequests = followRequests,
                 FollowRequested = followRequested,
+                Blocked = blocks,
+                BlockedFrom = blockedFrom,
                 CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             MarkAsComplete();
