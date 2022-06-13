@@ -132,5 +132,21 @@ namespace BaseApi.Controllers
 
             return ReturnBaseNotification(response);
         }
+
+        [HttpGet("recommend")]
+        public async Task<IActionResult> Recommend()
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+            var request = new BeginGetLinkRecommendationsRequest()
+            {
+                CorrelationId = Guid.NewGuid(),
+                UserId = userId
+            };
+            await _messageSession.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
+        }
     }
 }
