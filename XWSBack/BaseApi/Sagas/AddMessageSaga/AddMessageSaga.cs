@@ -91,6 +91,18 @@ namespace BaseApi.Sagas.AddMessageSaga
                 return;
             }
 
+            if (message.Blocked.Contains(Data.ReceiverId))
+            {
+                await FailSaga(context, "The user is blocked").ConfigureAwait(false);
+                return;
+            }
+
+            if (message.BlockedFrom.Contains(Data.ReceiverId))
+            {
+                await FailSaga(context, "The user is blocking you").ConfigureAwait(false);
+                return;
+            }
+
             await context.Send(new AddMessageRequest()
             {
                 Message = Data.Message,

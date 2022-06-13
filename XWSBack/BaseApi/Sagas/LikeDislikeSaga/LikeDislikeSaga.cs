@@ -67,25 +67,11 @@ namespace BaseApi.Sagas.LikeDislikeSaga
 
             Data.PostOwnerId = message.PostOwnerId;
 
-            var postOwner = await _userManager.FindByIdAsync(Data.PostOwnerId.ToString());
-            if (postOwner.IsPrivate)
+            await context.Send(new GetFollowStatsRequest()
             {
-                await context.Send(new GetFollowStatsRequest()
-                {
-                    CorrelationId = Data.CorrelationId,
-                    UserId = Data.UserId
-                }).ConfigureAwait(false);
-            }
-            else
-            {
-                await context.Send(new LikeDislikeRequest()
-                {
-                    CorrelationId = Data.CorrelationId,
-                    IsLike = Data.IsLike,
-                    PostId = Data.PostId,
-                    UserId = Data.UserId
-                }).ConfigureAwait(false);
-            }
+                CorrelationId = Data.CorrelationId,
+                UserId = Data.UserId
+            }).ConfigureAwait(false);
         }
 
         public async Task Handle(LikeDislikeResponse message, IMessageHandlerContext context)
@@ -115,20 +101,33 @@ namespace BaseApi.Sagas.LikeDislikeSaga
                 return;
             }
 
-            if (message.Following.Contains(Data.PostOwnerId))
+            if (message.Blocked.Contains(Data.PostOwnerId))
             {
-                await context.Send(new LikeDislikeRequest()
-                {
-                    CorrelationId = Data.CorrelationId,
-                    IsLike = Data.IsLike,
-                    PostId = Data.PostId,
-                    UserId = Data.UserId
-                }).ConfigureAwait(false);
+                await FailSaga(context, "You are blocking that user");
+                return;
             }
-            else
+
+            if (message.BlockedFrom.Contains(Data.PostOwnerId))
             {
-                await FailSaga(context, "User does not follow post owner");
+                await FailSaga(context, "Post owner is blocking you");
+                return;
             }
+
+            var postOwner = await _userManager.FindByIdAsync(Data.PostOwnerId.ToString());
+
+            if (postOwner.IsPrivate && !message.Following.Contains(Data.PostOwnerId))
+            {
+                await FailSaga(context, "You dont follow the post owner");
+                return;
+            }
+            
+            await context.Send(new LikeDislikeRequest()
+            {
+                CorrelationId = Data.CorrelationId,
+                IsLike = Data.IsLike,
+                PostId = Data.PostId,
+                UserId = Data.UserId
+            }).ConfigureAwait(false);
         }
 
         public async Task Timeout(BaseTimeout state, IMessageHandlerContext context)

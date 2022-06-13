@@ -14,39 +14,21 @@ namespace Users.Graph.Handlers.Services
         {
             _client = client;
         }
-
-        public async Task<IEnumerable<Guid>> GetFollowing(Guid userId)
-        {
-            return await _client.Cypher.Match("(u:UserNode)")
-                .Where((UserNode u) => u.UserId == userId)
-                .Match("(u)-[f:follows]->(k)")
-                .Return(k => k.As<UserNode>().UserId)
-                .ResultsAsync;
-        }
         
-        public async Task<IEnumerable<Guid>> GetFollowers(Guid userId)
+        public async Task<IEnumerable<Guid>> GetIdsFromMe(Guid userId, string linkName)
         {
             return await _client.Cypher.Match("(u:UserNode)")
                 .Where((UserNode u) => u.UserId == userId)
-                .Match("(k)-[f:follows]->(u)")
+                .Match($"(u)-[f:{linkName}]->(k)")
                 .Return(k => k.As<UserNode>().UserId)
                 .ResultsAsync;
         }
 
-        public async Task<IEnumerable<Guid>> GetFollowRequests(Guid userId)
+        public async Task<IEnumerable<Guid>> GetIdsToMe(Guid userId, string linkName)
         {
             return await _client.Cypher.Match("(u:UserNode)")
                 .Where((UserNode u) => u.UserId == userId)
-                .Match("(k)-[f:followRequest]->(u)")
-                .Return(k => k.As<UserNode>().UserId)
-                .ResultsAsync;
-        }
-
-        public async Task<IEnumerable<Guid>> GetFollowRequested(Guid userId)
-        {
-            return await _client.Cypher.Match("(u:UserNode)")
-                .Where((UserNode u) => u.UserId == userId)
-                .Match("(u)-[f:followRequest]->(k)")
+                .Match($"(k)-[f:{linkName}]->(u)")
                 .Return(k => k.As<UserNode>().UserId)
                 .ResultsAsync;
         }
