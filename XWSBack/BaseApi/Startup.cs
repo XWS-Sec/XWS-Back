@@ -53,7 +53,7 @@ namespace BaseApi
                 {
                     options.Password.RequireDigit = true;
                     options.Password.RequireNonAlphanumeric = false;
-                    options.Password.RequiredLength = 6;
+                    options.Password.RequiredLength = 8;
                     options.Password.RequireUppercase = false;
                     options.Password.RequireLowercase = false;
                     options.User.RequireUniqueEmail = true;
