@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Linq;
-using System.Security.Cryptography;
-using JobOffers.Handlers.Services;
-using JobOffers.Model;
-using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
+using App.Metrics;
+using App.Metrics.AspNetCore;
+using App.Metrics.Formatters.Prometheus;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
 using NServiceBus;
 using Serilog;
 using Serilog.Events;
@@ -48,23 +46,63 @@ namespace JobOffers.Handlers
             return Host.CreateDefaultBuilder(args)
                 .UseConsoleLifetime()
                 .UseSerilog()
-                .ConfigureServices(services =>
+                .ConfigureMetricsWithDefaults(builder =>
                 {
-                    var serviceInstances = typeof(Program).Assembly.GetTypes()
-                        .Where(x => x.Namespace.EndsWith("Services") && x.Name.EndsWith("Service"));
-
-                    foreach (var serviceInstance in serviceInstances)
+                    var influxdb = Environment.GetEnvironmentVariable("InfluxDBUri") ?? "http://localhost:8086";
+                    var client = new HttpClient()
                     {
-                        services.AddSingleton(serviceInstance);
-                    }
+                        BaseAddress = new Uri(influxdb)
+                    };
                     
-                    services.AddSingleton<IMongoClient, MongoClient>(s => SetupMongoDb.CreateClient<Company>("JobOffersHandlers", "JobOffers"));
-                    BsonSerializer.RegisterSerializer(typeof(Guid), new GuidSerializer(BsonType.String));
+                    try
+                    {
+                        var response = client.GetAsync("/ping").GetAwaiter().GetResult();
+                        if (response.IsSuccessStatusCode)
+                        {
+                            builder.Report.ToInfluxDb(options =>
+                            {
+                                options.FlushInterval = TimeSpan.FromSeconds(10);
+                                options.InfluxDb.Database = "metricsdatabase-jobs";
+                                options.InfluxDb.BaseUri = new Uri(influxdb);
+                                options.InfluxDb.UserName = Environment.GetEnvironmentVariable("InfluxUser") ?? "admin";
+                                options.InfluxDb.Password =
+                                    Environment.GetEnvironmentVariable("InfluxPass") ?? "admin123";
+                                options.InfluxDb.CreateDataBaseIfNotExists = true;
+                            });
+                        }
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        Log.Logger.Warning("Could not find InfluxDB to store metrics. Aborted configuring the report.");
+                    }
+                })
+                .UseMetricsWebTracking()
+                .UseMetrics(options =>
+                {
+                    options.EndpointOptions = endpointOpts =>
+                    {
+                        endpointOpts.MetricsTextEndpointOutputFormatter = new MetricsPrometheusTextOutputFormatter();
+                        endpointOpts.MetricsEndpointOutputFormatter = new MetricsPrometheusProtobufOutputFormatter();
+                    };
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    var certPath = Environment.GetEnvironmentVariable("XWS_PKI_ROOT_CERT_FOLDER") ??
+                                   @"%USERPROFILE%\.xws-cert\";
+                    var pfxPath = Environment.ExpandEnvironmentVariables(certPath) + "apiCert.pfx";
+                    var certPass = Environment.GetEnvironmentVariable("XWS_PKI_ADMINPASS");
 
-                    services.AddSingleton<HashAlgorithm>(x => SHA256.Create());
-                    services.AddScoped<ApiKeyGenerator>();
+                    var certificate = new X509Certificate2(
+                        pfxPath,
+                        certPass);
 
-                    services.AddAutoMapper(typeof(Program));
+
+                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseKestrel(options =>
+                    {
+                        options.Listen(IPAddress.Loopback, 44325,
+                            listenOptions => { listenOptions.UseHttps(certificate); });
+                    });
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.JobOffersHandlers);
