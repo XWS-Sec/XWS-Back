@@ -1,14 +1,16 @@
 ﻿using System;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
+using App.Metrics;
+using App.Metrics.AspNetCore;
+using App.Metrics.Formatters.Prometheus;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Neo4jClient;
 using NServiceBus;
 using Serilog;
 using Serilog.Events;
 using Shared;
-using Users.Graph.Handlers.Services;
 
 namespace Users.Graph.Handlers
 {
@@ -22,7 +24,6 @@ namespace Users.Graph.Handlers
                 .WriteTo.Console()
                 .WriteTo.File("Logs/BaseApi.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
-            
             try
             {
                 Log.Information("Starting web host");
@@ -45,24 +46,68 @@ namespace Users.Graph.Handlers
             return Host.CreateDefaultBuilder(args)
                 .UseConsoleLifetime()
                 .UseSerilog()
-                .ConfigureServices(services =>
+                .ConfigureMetricsWithDefaults(builder =>
                 {
-                    var uri = Environment.GetEnvironmentVariable("NEO4J_URI") ?? "bolt://localhost:7687";
-                    var user = Environment.GetEnvironmentVariable("NEO4J_USER") ?? "neo4j";
-                    var pass = Environment.GetEnvironmentVariable("NEO4J_PASS") ?? "neo4j";
-                    var graphClient = new BoltGraphClient(new Uri(uri), user, pass);
-                    graphClient.ConnectAsync();
-
-                    services.AddSingleton<IGraphClient, BoltGraphClient>(s => graphClient);
-
-                    var serviceInstances = typeof(Program).Assembly.GetTypes()
-                        .Where(x => x.Namespace.EndsWith("Services") && x.Name.EndsWith("Service"));
-
-                    foreach (var serviceInstance in serviceInstances)
+                    var influxdb = Environment.GetEnvironmentVariable("InfluxDBUri") ?? "http://localhost:8086";
+                    var client = new HttpClient()
                     {
-                        services.AddSingleton(serviceInstance);
-                    }
+                        BaseAddress = new Uri(influxdb)
+                    };
 
+                    try
+                    {
+                        var response = client.GetAsync("/ping").GetAwaiter().GetResult();
+                        if (response.IsSuccessStatusCode)
+                        {
+                            builder.Report.ToInfluxDb(options =>
+                            {
+                                options.FlushInterval = TimeSpan.FromSeconds(10);
+                                options.InfluxDb.Database = "metricsdatabase-usersgraph";
+                                options.InfluxDb.BaseUri = new Uri(influxdb);
+                                options.InfluxDb.UserName = Environment.GetEnvironmentVariable("InfluxUser") ?? "admin";
+                                options.InfluxDb.Password =
+                                    Environment.GetEnvironmentVariable("InfluxPass") ?? "admin123";
+                                options.InfluxDb.CreateDataBaseIfNotExists = true;
+                            });
+                        }
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        Log.Logger.Warning("Could not find InfluxDB to store metrics. Aborted configuring the report.");
+                    }
+                })
+                .UseMetricsWebTracking(options =>
+                {
+                    options.IgnoredRoutesRegexPatterns.Add("/metrics");
+                    options.IgnoredRoutesRegexPatterns.Add("/env");
+                    options.IgnoredRoutesRegexPatterns.Add("/metrics-text");
+                })
+                .UseMetrics(options =>
+                {
+                    options.EndpointOptions = endpointOpts =>
+                    {
+                        endpointOpts.MetricsTextEndpointOutputFormatter = new MetricsPrometheusTextOutputFormatter();
+                        endpointOpts.MetricsEndpointOutputFormatter = new MetricsPrometheusProtobufOutputFormatter();
+                    };
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    var certPath = Environment.GetEnvironmentVariable("XWS_PKI_ROOT_CERT_FOLDER") ??
+                                   @"%USERPROFILE%\.xws-cert\";
+                    var pfxPath = Environment.ExpandEnvironmentVariables(certPath) + "apiCert.pfx";
+                    var certPass = Environment.GetEnvironmentVariable("XWS_PKI_ADMINPASS");
+
+                    var certificate = new X509Certificate2(
+                        pfxPath,
+                        certPass);
+
+
+                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseKestrel(options =>
+                    {
+                        options.Listen(IPAddress.Loopback, 44327,
+                            listenOptions => { listenOptions.UseHttps(certificate); });
+                    });
                 }).UseNServiceBus(ctx =>
                 {
                     var endpointConfig = new EndpointConfiguration(EndpointInstances.UserGraphHandlers);

@@ -1,6 +1,10 @@
 using System;
 using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
+using App.Metrics;
+using App.Metrics.AspNetCore;
+using App.Metrics.Formatters.Prometheus;
 using Chats.Messages;
 using JobOffers.Messages;
 using Microsoft.AspNetCore.Hosting;
@@ -47,6 +51,45 @@ namespace BaseApi
         {
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
+                .ConfigureMetricsWithDefaults(builder =>
+                {
+                    var influxdb = Environment.GetEnvironmentVariable("InfluxDBUri") ?? "http://localhost:8086";
+                    var client = new HttpClient()
+                    {
+                        BaseAddress = new Uri(influxdb)
+                    };
+
+                    try
+                    {
+                        var response = client.GetAsync("/ping").GetAwaiter().GetResult();
+                        if (response.IsSuccessStatusCode)
+                        {
+                            builder.Report.ToInfluxDb(options =>
+                            {
+                                options.FlushInterval = TimeSpan.FromSeconds(10);
+                                options.InfluxDb.Database = "metricsdatabase-baseapi";
+                                options.InfluxDb.BaseUri = new Uri(influxdb);
+                                options.InfluxDb.UserName = Environment.GetEnvironmentVariable("InfluxUser") ?? "admin";
+                                options.InfluxDb.Password =
+                                    Environment.GetEnvironmentVariable("InfluxPass") ?? "admin123";
+                                options.InfluxDb.CreateDataBaseIfNotExists = true;
+                            });
+                        }
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        Log.Logger.Warning("Could not find InfluxDB to store metrics. Aborted configuring the report.");
+                    }
+                })
+                .UseMetricsWebTracking()
+                .UseMetrics(options =>
+                {
+                    options.EndpointOptions = endpointOpts =>
+                    {
+                        endpointOpts.MetricsTextEndpointOutputFormatter = new MetricsPrometheusTextOutputFormatter();
+                        endpointOpts.MetricsEndpointOutputFormatter = new MetricsPrometheusProtobufOutputFormatter();
+                    };
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     var certPath = Environment.GetEnvironmentVariable("XWS_PKI_ROOT_CERT_FOLDER") ??

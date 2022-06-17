@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using BaseApi.CustomAttributes;
 using BaseApi.Hubs;
 using BaseApi.Middleware;
 using BaseApi.Model.Mongo;
@@ -37,7 +38,6 @@ namespace BaseApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
             services.AddSignalR();
             services.AddSwaggerGen(c =>
             {
@@ -99,6 +99,17 @@ namespace BaseApi
                 Priority = CacheItemPriority.High,
                 SlidingExpiration = TimeSpan.FromHours(1),
             });
+
+            services.AddMetrics();
+            services.AddMetricsEndpoints();
+            services.AddMetricsTrackingMiddleware();
+            services.AddMetricsReportingHostedService();
+            services.AddAppMetricsCollectors();
+            services.AddAppMetricsHealthPublishing();
+            services.AddAppMetricsSystemMetricsCollector();
+            services.AddAppMetricsGcEventsMetricsCollector();
+
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -121,6 +132,9 @@ namespace BaseApi
             app.UseCors("CorsPolicy");
 
             app.UseMiddleware<AntiXssMiddleware>();
+            app.UseMiddleware<CustomStatusCodeCounterMiddleware>();
+            app.UseMiddleware<CustomThroughPutCalculationMiddleware>();
+            app.UseMiddleware<CustomDistinctUserCounterMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
