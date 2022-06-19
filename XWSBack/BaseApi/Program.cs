@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -9,6 +10,7 @@ using Chats.Messages;
 using JobOffers.Messages;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Neo4jClient.Extensions;
 using NServiceBus;
 using Posts.Messages;
 using Serilog;
@@ -92,22 +94,29 @@ namespace BaseApi
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    var useHttps = Environment.GetEnvironmentVariable("USE_HTTPS") ?? "true";
                     var certPath = Environment.GetEnvironmentVariable("XWS_PKI_ROOT_CERT_FOLDER") ??
                                    @"%USERPROFILE%\.xws-cert\";
                     var pfxPath = Environment.ExpandEnvironmentVariables(certPath) + "apiCert.pfx";
                     var certPass = Environment.GetEnvironmentVariable("XWS_PKI_ADMINPASS");
 
-                    var certificate = new X509Certificate2(
-                        pfxPath,
-                        certPass);
-
-
+                    X509Certificate2 certificate = null;
+                    if (useHttps == "true")
+                    {
+                        certificate = new X509Certificate2(
+                            pfxPath,
+                            certPass);
+                    }
+                    
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseKestrel(options =>
                     {
-                        options.Listen(IPAddress.Loopback, 44322,
-                            listenOptions => { listenOptions.UseHttps(certificate); });
-                        options.ListenLocalhost(4000);
+                        if (useHttps == "true")
+                        {
+                            options.Listen(IPAddress.Loopback, 44322,
+                                listenOptions => { listenOptions.UseHttps(certificate); });   
+                        }
+                        options.ListenAnyIP(7700);
                     });
                 })
                 .UseNServiceBus(context =>

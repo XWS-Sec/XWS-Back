@@ -6,6 +6,6 @@
         public const string PostHandlers = "PostsHandlers";
         public const string ChatHandlers = "ChatsHandlers";
         public const string UserGraphHandlers = "UsersGraphHandlers";
-        public const string JobOffersHandlers = "JobOffersEndpoint";
+        public const string JobOffersHandlers = "JobOffersHandlers";
     }
 }
