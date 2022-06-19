@@ -17,13 +17,17 @@ namespace Shared
     {
         public static RoutingSettings Configure(this EndpointConfiguration endpointConfig, string endpointName)
         {
-            endpointConfig.AuditProcessedMessagesTo("audit");
-            endpointConfig.SendFailedMessagesTo("error");
-            endpointConfig.SendHeartbeatTo("Particular.ServiceControl", TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(15));
-            var metrics = endpointConfig.EnableMetrics();
+            var shouldTrace = Environment.GetEnvironmentVariable("XWS_ENABLE_TRACE") ?? "true";
+            if (shouldTrace == "true")
+            {
+                endpointConfig.AuditProcessedMessagesTo("audit");
+                endpointConfig.SendFailedMessagesTo("error");
+                endpointConfig.SendHeartbeatTo("Particular.ServiceControl", TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(15));
+                var metrics = endpointConfig.EnableMetrics();
 
-            metrics.SendMetricDataToServiceControl("Particular.Monitoring", TimeSpan.FromSeconds(3));
-
+                metrics.SendMetricDataToServiceControl("Particular.Monitoring", TimeSpan.FromSeconds(3));   
+            }
+            
             var databus = endpointConfig.UseDataBus<FileShareDataBus>();
             databus.BasePath(Environment.GetEnvironmentVariable("DATABUS_PATH") ?? "C:\\NServiceBusFileShare");
 

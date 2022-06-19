@@ -107,6 +107,7 @@ namespace BaseApi
                     {
                         options.Listen(IPAddress.Loopback, 44322,
                             listenOptions => { listenOptions.UseHttps(certificate); });
+                        options.ListenLocalhost(4000);
                     });
                 })
                 .UseNServiceBus(context =>

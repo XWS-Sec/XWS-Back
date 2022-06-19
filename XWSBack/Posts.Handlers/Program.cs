@@ -102,6 +102,7 @@ namespace Posts.Handlers
                     {
                         options.Listen(IPAddress.Loopback, 44326,
                             listenOptions => { listenOptions.UseHttps(certificate); });
+                        options.ListenLocalhost(4003);
                     });
                 }).UseNServiceBus(ctx =>
                 {

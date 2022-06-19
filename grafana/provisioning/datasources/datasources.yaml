@@ -1,0 +1,97 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: Dv6TeLC7k
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    password:
+    user:
+    database:
+    basicAuth: false
+    basicAuthUser:
+    basicAuthPassword:
+    withCredentials: false
+    jsonData:
+      httpMethod: POST
+
+  - name: Influx - BaseApi
+    type: influxdb
+    access: direct
+    url: http://localhost:8086
+    user: admin
+    database: "metricsdatabase-baseapi"
+    basicAuth: false
+    basicAuthUser: 
+    basicAuthPassword:
+    withCredentials: false
+    jsonData:
+      httpMethod: GET
+      version: InfluxQL
+    secureJsonFields:
+      password: admin123
+
+  - name: Influx - Chats
+    type: influxdb
+    access: direct
+    url: http://localhost:8086
+    user: admin
+    database: "metricsdatabase-chat"
+    basicAuth: false
+    basicAuthUser: 
+    basicAuthPassword:
+    withCredentials: false
+    jsonData:
+      httpMethod: GET
+      version: InfluxQL
+    secureJsonFields:
+      password: admin123
+
+  - name: Influx - Jobs
+    type: influxdb
+    access: direct
+    url: http://localhost:8086
+    user: admin
+    database: "metricsdatabase-jobs"
+    basicAuth: false
+    basicAuthUser: 
+    basicAuthPassword:
+    withCredentials: false
+    jsonData:
+      httpMethod: GET
+      version: InfluxQL
+    secureJsonFields:
+      password: admin123
+
+  - name: Influx - Posts
+    type: influxdb
+    access: direct
+    url: http://localhost:8086
+    user: admin
+    database: "metricsdatabase-posts"
+    basicAuth: false
+    basicAuthUser: 
+    basicAuthPassword:
+    withCredentials: false
+    jsonData:
+      httpMethod: GET
+      version: InfluxQL
+    secureJsonFields:
+      password: admin123
+
+  - name: Influx - Users.Graph
+    type: influxdb
+    access: direct
+    url: http://localhost:8086
+    user: admin
+    database: "metricsdatabase-usersgraph"
+    basicAuth: false
+    basicAuthUser: 
+    basicAuthPassword:
+    withCredentials: false
+    jsonData:
+      httpMethod: GET
+      version: InfluxQL
+    secureJsonFields:
+      password: admin123
