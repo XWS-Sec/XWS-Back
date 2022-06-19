@@ -87,22 +87,30 @@ namespace Posts.Handlers
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    var useHttps = Environment.GetEnvironmentVariable("USE_HTTPS") ?? "true";
                     var certPath = Environment.GetEnvironmentVariable("XWS_PKI_ROOT_CERT_FOLDER") ??
                                    @"%USERPROFILE%\.xws-cert\";
                     var pfxPath = Environment.ExpandEnvironmentVariables(certPath) + "apiCert.pfx";
                     var certPass = Environment.GetEnvironmentVariable("XWS_PKI_ADMINPASS");
 
-                    var certificate = new X509Certificate2(
-                        pfxPath,
-                        certPass);
+                    X509Certificate2 certificate = null;
+                    if (useHttps == "true")
+                    {
+                        certificate = new X509Certificate2(
+                            pfxPath,
+                            certPass);
+                    }
 
 
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseKestrel(options =>
                     {
-                        options.Listen(IPAddress.Loopback, 44326,
-                            listenOptions => { listenOptions.UseHttps(certificate); });
-                        options.ListenLocalhost(4003);
+                        if (useHttps == "true")
+                        {
+                            options.Listen(IPAddress.Loopback, 44326,
+                                listenOptions => { listenOptions.UseHttps(certificate); });   
+                        }
+                        options.ListenAnyIP(7703);
                     });
                 }).UseNServiceBus(ctx =>
                 {

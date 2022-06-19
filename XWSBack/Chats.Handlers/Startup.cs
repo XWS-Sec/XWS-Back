@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using App.Metrics;
 using App.Metrics.Formatters.InfluxDB;
 using Chats.Model;
@@ -12,6 +13,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
+using Serilog;
 using Shared;
 
 namespace Chats.Handlers
@@ -27,6 +29,22 @@ namespace Chats.Handlers
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var localhost = Environment.GetEnvironmentVariable("LCH") ?? "localhost";
+            ProceedIfServiceIsAlive checker = null;
+            var useRmq = Environment.GetEnvironmentVariable("USE_RMQ");
+            if (!string.IsNullOrEmpty(useRmq))
+            {
+                Log.Logger.Information("Trying to connect to rabbitmq");
+                checker = new ProceedIfServiceIsAlive(localhost, 5672);
+                checker.Check();
+                Log.Logger.Information("Connected to rabbitmq");
+            }
+        
+            Log.Logger.Information("Trying to connect to mongodb");
+            checker = new ProceedIfServiceIsAlive(localhost, 27017);
+            checker.Check();
+            Log.Logger.Information("Connected to mongodb");
+            
             services.AddControllers();
 
             var serviceInstances = typeof(Program).Assembly.GetTypes()

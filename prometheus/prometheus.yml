@@ -33,35 +33,35 @@ scrape_configs:
     
     static_configs:
       - targets: 
-        - host.docker.internal:4000
+        - host.docker.internal:7700
     metrics_path: /metrics-text
     
   - job_name: "Chats.Handlers"
     
     static_configs:
       - targets: 
-        - host.docker.internal:4001
+        - host.docker.internal:7701
     metrics_path: /metrics-text
     
   - job_name: "Jobs.Handlers"
     
     static_configs:
       - targets: 
-        - host.docker.internal:4002
+        - host.docker.internal:7702
     metrics_path: /metrics-text
     
   - job_name: "Posts.Handlers"
     
     static_configs:
       - targets:
-        - host.docker.internal:4003
+        - host.docker.internal:7703
     metrics_path: /metrics-text
     
   - job_name: "Users.Graph.Handlers"
     
     static_configs:
       - targets:
-        - host.docker.internal:4004
+        - host.docker.internal:7704
     metrics_path: /metrics-text
   
   - job_name: "Windows exporter"

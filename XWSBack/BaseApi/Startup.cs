@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using BaseApi.CustomAttributes;
 using BaseApi.Hubs;
 using BaseApi.Middleware;
@@ -38,6 +40,22 @@ namespace BaseApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var localhost = Environment.GetEnvironmentVariable("LCH") ?? "localhost";
+            ProceedIfServiceIsAlive checker = null;
+            var useRmq = Environment.GetEnvironmentVariable("USE_RMQ");
+            if (!string.IsNullOrEmpty(useRmq))
+            {
+                Log.Logger.Information("Trying to connect to rabbitmq");
+                checker = new ProceedIfServiceIsAlive(localhost, 5672);
+                checker.Check();
+                Log.Logger.Information("Connected to rabbitmq");
+            }
+        
+            Log.Logger.Information("Trying to connect to mongodb");
+            checker = new ProceedIfServiceIsAlive(localhost, 27017);
+            checker.Check();
+            Log.Logger.Information("Connected to mongodb");
+            
             services.AddSignalR();
             services.AddSwaggerGen(c =>
             {
@@ -118,11 +136,16 @@ namespace BaseApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BaseApi v1"));
             }
-
-            app.UseHttpsRedirection();
+            
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BaseApi v1"));
+            
+            var useHttps = Environment.GetEnvironmentVariable("USE_HTTPS") ?? "true";
+            if (useHttps == "true")
+            {
+                app.UseHttpsRedirection();   
+            }
 
             app.UseRouting();
 

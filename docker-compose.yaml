@@ -76,4 +76,105 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  
+  baseapi:
+    build: 
+      context: ./XWSBack
+      dockerfile: ./baseapi.dockerfile
+#    image: baseapi
+    restart: always
+    container_name: baseapi
+    hostname: baseapi
+    ports:
+      - 7700:7700
+    environment:
+      - USE_RMQ=true
+      - USER_PIC_DIR=/user-pics
+      - POST_PIC_DIR=/post-pics
+      - DATABUS_PATH=/DATABUS_PATH
+      - USE_HTTPS=false
+      - LCH=host.docker.internal
+      - XWS_SENDGRID={$XWS_SENDGRID}
+      - XWS_FACE_APP_ID={$XWS_FACE_APP_ID}
+      - XWS_FACE_APP_SECRET={$XWS_FACE_APP_SECRET}
+      - BaseApiMongoDb=mongodb://mongo:27017
+      - XWS_ENABLE_TRACE=false
+      - InfluxDBUri=http://influxdb:8086
+
+  chats:
+    build: 
+      context: ./XWSBack
+      dockerfile: ./chats.dockerfile
+#    image: chats
+    restart: always
+    container_name: chats
+    hostname: chats
+    ports:
+      - 7701:7701
+    environment:
+      - USE_RMQ=true
+      - DATABUS_PATH=/DATABUS_PATH
+      - USE_HTTPS=false
+      - LCH=host.docker.internal
+      - ChatsHandlersMongoDb=mongodb://mongo:27017
+      - XWS_ENABLE_TRACE=false
+      - InfluxDBUri=http://influxdb:8086
+
+  joboffers:
+    build: 
+      context: ./XWSBack
+      dockerfile: ./jobOffers.dockerfile
+#    image: joboffers
+    restart: always
+    container_name: joboffers
+    hostname: joboffers
+    ports:
+      - 7702:7702
+    environment:
+      - USE_RMQ=true
+      - DATABUS_PATH=/DATABUS_PATH
+      - USE_HTTPS=false
+      - LCH=host.docker.internal
+      - JobOffersHandlersMongoDb=mongodb://mongo:27017
+      - XWS_ENABLE_TRACE=false
+      - InfluxDBUri=http://influxdb:8086
+  
+  posts:
+    build: 
+      context: ./XWSBack
+      dockerfile: ./posts.dockerfile
+#    image: posts
+    restart: always
+    container_name: posts
+    hostname: posts
+    ports:
+      - 7703:7703
+    environment:
+      - USE_RMQ=true
+      - DATABUS_PATH=/DATABUS_PATH
+      - USE_HTTPS=false
+      - LCH=host.docker.internal
+      - PostsHandlersMongoDb=mongodb://mongo:27017
+      - XWS_ENABLE_TRACE=false
+      - InfluxDBUri=http://influxdb:8086
+
+  usersgraph:
+    build: 
+      context: ./XWSBack
+      dockerfile: ./usersGraph.dockerfile
+#    image: usersgraph
+    restart: always
+    container_name: usersGraph
+    hostname: usersGraph
+    ports:
+      - 7704:7704
+    environment:
+      - USE_RMQ=true
+      - DATABUS_PATH=/DATABUS_PATH
+      - USE_HTTPS=false
+      - LCH=host.docker.internal
+      - UsersGraphHandlersMongoDb=mongodb://mongo:27017
+      - XWS_ENABLE_TRACE=false
+      - InfluxDBUri=http://influxdb:8086
+
 
