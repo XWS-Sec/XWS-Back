@@ -107,6 +107,7 @@ namespace Users.Graph.Handlers
                     {
                         options.Listen(IPAddress.Loopback, 44327,
                             listenOptions => { listenOptions.UseHttps(certificate); });
+                        options.ListenLocalhost(4004);
                     });
                 }).UseNServiceBus(ctx =>
                 {

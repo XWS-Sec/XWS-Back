@@ -102,6 +102,7 @@ namespace JobOffers.Handlers
                     {
                         options.Listen(IPAddress.Loopback, 44325,
                             listenOptions => { listenOptions.UseHttps(certificate); });
+                        options.ListenLocalhost(4002);
                     });
                 }).UseNServiceBus(ctx =>
                 {

@@ -103,6 +103,7 @@ namespace Chats.Handlers
                     {
                         options.Listen(IPAddress.Loopback, 44324,
                             listenOptions => { listenOptions.UseHttps(certificate); });
+                        options.ListenLocalhost(4001);
                     });
                 }).UseNServiceBus(ctx =>
                 {
