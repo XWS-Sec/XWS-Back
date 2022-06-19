@@ -7,6 +7,7 @@ namespace BaseApi.Messages.Notifications
 {
     public class PostsNotification : ICustomMessage
     {
+        public Guid CorrelationId { get; set; }
         public Guid UserId { get; set; }
         public IEnumerable<PostNotificationDto> Posts { get; set; }
     }

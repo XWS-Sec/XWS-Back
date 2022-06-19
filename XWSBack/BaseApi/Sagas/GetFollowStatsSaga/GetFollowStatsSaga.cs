@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using BaseApi.Messages;
+using BaseApi.Messages.Dtos;
 using BaseApi.Messages.Notifications;
 using BaseApi.Messages.Timeouts;
 using BaseApi.Model.Mongo;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using NServiceBus;
 using Users.Graph.Messages.Follow;
 
@@ -24,8 +28,9 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetFollowStatsSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginGetFollowStatsRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginGetFollowStatsRequest>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginGetFollowStatsRequest message, IMessageHandlerContext context)
@@ -57,12 +62,23 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
                 return;
             }
 
+            var followers = await FindUsers(message.Followers);
+            var following = await FindUsers(message.Following);
+            var followRequests = await FindUsers(message.FollowRequests);
+            var followRequested = await FindUsers(message.FollowRequested);
+            var blocks = await FindUsers(message.Blocked);
+            var blockedFrom = await FindUsers(message.BlockedFrom);
+
             await context.SendLocal(new FollowStatsNotification()
             {
                 UserId = Data.UserId,
-                Followers = message.Followers,
-                Following = message.Following,
-                FollowRequests = message.FollowRequests
+                Followers = followers,
+                Following = following,
+                FollowRequests = followRequests,
+                FollowRequested = followRequested,
+                Blocked = blocks,
+                BlockedFrom = blockedFrom,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             MarkAsComplete();
         }
@@ -93,10 +109,30 @@ namespace BaseApi.Sagas.GetFollowStatsSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
-            
+
             MarkAsComplete();
+        }
+
+        private async Task<List<UserNotificationDto>> FindUsers(IEnumerable<Guid> userIds)
+        {
+            var retVal = new List<UserNotificationDto>();
+            foreach (var follower in userIds)
+            {
+                var currentUser = await _userManager.FindByIdAsync(follower.ToString());
+                retVal.Add(new UserNotificationDto()
+                {
+                    Id = currentUser.Id,
+                    Username = currentUser.UserName,
+                    Name = currentUser.Name,
+                    Surname = currentUser.Surname,
+                    IsPrivate = currentUser.IsPrivate
+                });
+            }
+
+            return retVal;
         }
     }
 }

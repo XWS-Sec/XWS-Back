@@ -47,7 +47,6 @@ namespace BaseApi.Services.UserServices
             editedUser.UserName = string.IsNullOrEmpty(newUser.UserName) ? editedUser.UserName : newUser.UserName;
             editedUser.Name = string.IsNullOrEmpty(newUser.Name) ? editedUser.Name : newUser.Name;
             editedUser.Surname = string.IsNullOrEmpty(newUser.Surname) ? editedUser.Surname : newUser.Surname;
-            editedUser.IsPrivate = newUser.IsPrivate;
             editedUser.Email = string.IsNullOrEmpty(newUser.Email) ? editedUser.Email : newUser.Email;
             editedUser.PhoneNumber = string.IsNullOrEmpty(newUser.PhoneNumber) ? editedUser.PhoneNumber : newUser.PhoneNumber;
             editedUser.Biography = string.IsNullOrEmpty(newUser.Biography) ? editedUser.Biography : newUser.Biography;

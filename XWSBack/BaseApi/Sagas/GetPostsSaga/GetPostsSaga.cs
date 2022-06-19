@@ -32,9 +32,10 @@ namespace BaseApi.Sagas.GetPostsSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetPostsSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginGetPostsRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetPostsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginGetPostsRequest>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId)
+                .ToMessage<GetPostsResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginGetPostsRequest message, IMessageHandlerContext context)
@@ -54,20 +55,15 @@ namespace BaseApi.Sagas.GetPostsSaga
                 return;
             }
 
-            if (message.RequestedUserId != Guid.Empty)
+            if (message.RequestedUserId != Guid.Empty && Data.RequestedUserId == Data.UserId)
             {
-                var requestedUser = await _userManager.FindByIdAsync(Data.RequestedUserId.ToString());
-
-                if (!requestedUser.IsPrivate)
+                await context.Send(new GetPostsRequest()
                 {
-                    await context.Send(new GetPostsRequest()
-                    {
-                        Page = Data.Page,
-                        CorrelationId = Data.CorrelationId,
-                        PostsOwners = new List<Guid>() { Data.RequestedUserId }
-                    }).ConfigureAwait(false);
-                    return;
-                }
+                    Page = Data.Page,
+                    CorrelationId = Data.CorrelationId,
+                    PostsOwners = new List<Guid>() { Data.RequestedUserId }
+                }).ConfigureAwait(false);
+                return;
             }
 
             await context.Send(new GetFollowStatsRequest()
@@ -92,6 +88,25 @@ namespace BaseApi.Sagas.GetPostsSaga
 
             if (Data.RequestedUserId != Guid.Empty)
             {
+                if (message.Blocked.Contains(Data.RequestedUserId))
+                {
+                    await FailSaga(context, "You are blocking that user");
+                    return;
+                }
+
+                if (message.BlockedFrom.Contains(Data.RequestedUserId))
+                {
+                    await FailSaga(context, "That user is blocking you");
+                    return;
+                }
+                
+                var user = await _userManager.FindByIdAsync(Data.RequestedUserId.ToString());
+                if (user.IsPrivate && !message.Following.Contains(Data.RequestedUserId))
+                {
+                    await FailSaga(context, "User is private and not followed").ConfigureAwait(false);
+                    return;
+                }
+                
                 if (message.Following.Contains(Data.RequestedUserId))
                 {
                     await context.Send(new GetPostsRequest()
@@ -102,9 +117,6 @@ namespace BaseApi.Sagas.GetPostsSaga
                     }).ConfigureAwait(false);
                     return;
                 }
-                
-                await FailSaga(context, "User is private and not followed").ConfigureAwait(false);
-                return;
             }
 
             await context.Send(new GetPostsRequest()
@@ -120,7 +132,8 @@ namespace BaseApi.Sagas.GetPostsSaga
             await context.SendLocal(new PostsNotification()
             {
                 UserId = Data.UserId,
-                Posts = _mapper.Map<List<PostNotificationDto>>(message.Posts)
+                Posts = _mapper.Map<List<PostNotificationDto>>(message.Posts),
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -131,7 +144,8 @@ namespace BaseApi.Sagas.GetPostsSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -141,21 +155,28 @@ namespace BaseApi.Sagas.GetPostsSaga
         {
             var retVal = string.Empty;
 
-            if (message.UserId == Guid.Empty)
-            {
-                retVal += $"UserId is mandatory\n";
-            }
-            else if (await _userManager.FindByIdAsync(message.UserId.ToString()) == null)
+            if (message.UserId != Guid.Empty && await _userManager.FindByIdAsync(message.UserId.ToString()) == null)
             {
                 retVal += $"User with id {message.UserId} not found\n";
             }
 
-            if (message.RequestedUserId != Guid.Empty &&
-                await _userManager.FindByIdAsync(message.RequestedUserId.ToString()) == null)
+            if (message.UserId == Guid.Empty && message.RequestedUserId == Guid.Empty)
             {
-                retVal += $"User with id {message.RequestedUserId} not found\n";
+                retVal += $"You cannot get posts if you are not logged in, only of a specific user who has to have a public profile\n";
             }
             
+            if (message.RequestedUserId != Guid.Empty)
+            {
+                var requestedUser = await _userManager.FindByIdAsync(message.RequestedUserId.ToString());
+                if (requestedUser == null)
+                {
+                    retVal += $"User with id {message.RequestedUserId} not found\n";
+                }else if (message.UserId == Guid.Empty && requestedUser.IsPrivate)
+                {
+                    retVal += $"Cannot retrieve posts of a private user if you are not logged in\n";
+                }
+            }
+
             return retVal;
         }
     }

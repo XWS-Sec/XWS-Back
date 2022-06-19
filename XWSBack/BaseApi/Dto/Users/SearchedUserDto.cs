@@ -8,7 +8,8 @@ namespace BaseApi.Dto.Users
     {
         public Guid Id { get; set; }
 
-        [BsonElement("UserName")] public string Username { get; set; }
+        [BsonElement("UserName")] 
+        public string Username { get; set; }
 
         public string Name { get; set; }
         public string Surname { get; set; }

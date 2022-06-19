@@ -24,8 +24,9 @@ namespace BaseApi.Sagas.UnfollowSaga
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<UnfollowSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginUnfollowRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<UnfollowResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginUnfollowRequest>(m => m.CorrelationId)
+                .ToMessage<UnfollowResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginUnfollowRequest message, IMessageHandlerContext context)
@@ -62,7 +63,8 @@ namespace BaseApi.Sagas.UnfollowSaga
             {
                 IsSuccessful = true,
                 Message = $"Successfully unfollowed user {Data.Receiver}",
-                UserId = Data.Sender
+                UserId = Data.Sender,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -103,7 +105,8 @@ namespace BaseApi.Sagas.UnfollowSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.Sender
+                UserId = Data.Sender,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

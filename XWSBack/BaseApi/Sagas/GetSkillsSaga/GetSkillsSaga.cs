@@ -24,8 +24,9 @@ namespace BaseApi.Sagas.GetSkillsSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetSkillsSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginGetSkillsRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetSkillsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginGetSkillsRequest>(m => m.CorrelationId)
+                .ToMessage<GetSkillsResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginGetSkillsRequest message, IMessageHandlerContext context)
@@ -71,6 +72,7 @@ namespace BaseApi.Sagas.GetSkillsSaga
                 LinkName = Data.LinkName,
                 Skills = message.Links,
                 UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -97,7 +99,8 @@ namespace BaseApi.Sagas.GetSkillsSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

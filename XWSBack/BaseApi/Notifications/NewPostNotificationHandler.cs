@@ -20,7 +20,7 @@ namespace BaseApi.Notifications
             _hub = hub;
         }
 
-        private ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
+        private static ConcurrentDictionary<Guid, ConnectedUser> _dictionary => BaseHub.connections;
 
         public async Task Handle(NewPostNotification message, IMessageHandlerContext context)
         {

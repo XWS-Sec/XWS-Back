@@ -9,6 +9,7 @@
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="11.0.1" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+        <PackageReference Include="HtmlSanitizer" Version="7.1.488" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
         <PackageReference Include="MongoDB.Driver" Version="2.15.0" />
         <PackageReference Include="Neo4jClient" Version="4.1.23" />
@@ -25,6 +26,7 @@
       <ProjectReference Include="..\BaseApi.Model\BaseApi.Model.csproj" />
       <ProjectReference Include="..\BaseApi.Services\BaseApi.Services.csproj" />
       <ProjectReference Include="..\Chats.Messages\Chats.Messages.csproj" />
+      <ProjectReference Include="..\JobOffers.Messages\JobOffers.Messages.csproj" />
       <ProjectReference Include="..\Shared\Shared.csproj" />
       <ProjectReference Include="..\Users.Graph.Messages\Users.Graph.Messages.csproj" />
     </ItemGroup>

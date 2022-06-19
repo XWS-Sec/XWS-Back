@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BaseApi.Controllers.Base;
 using BaseApi.CustomAttributes;
 using BaseApi.Dto.Skills;
 using BaseApi.Messages;
 using BaseApi.Model.Mongo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using NServiceBus;
 
 namespace BaseApi.Controllers
@@ -13,12 +15,12 @@ namespace BaseApi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [TypeFilter(typeof(CustomAuthorizeAttribute))]
-    public class InterestController : ControllerBase
+    public class InterestController : SyncController
     {
         private readonly UserManager<User> _userManager;
         private readonly IMessageSession _session;
 
-        public InterestController(UserManager<User> userManager, IMessageSession session)
+        public InterestController(UserManager<User> userManager, IMessageSession session, IMemoryCache cache) : base(cache)
         {
             _userManager = userManager;
             _session = session;
@@ -28,30 +30,36 @@ namespace BaseApi.Controllers
         public async Task<IActionResult> Get()
         {
             var userId = Guid.Parse(_userManager.GetUserId(User));
-            await _session.SendLocal(new BeginGetSkillsRequest()
+            var request = new BeginGetSkillsRequest()
             {
                 CorrelationId = Guid.NewGuid(),
                 LinkName = "hasInterest",
                 UserId = userId
-            }).ConfigureAwait(false);
+            };
+            await _session.SendLocal(request).ConfigureAwait(false);
 
-            return Ok();
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post(AdjustSkillsDto interestDto)
         {
             var userId = Guid.Parse(_userManager.GetUserId(User));
-            await _session.SendLocal(new BeginAdjustSkillsRequest()
+            var request = new BeginAdjustSkillsRequest()
             {
                 CorrelationId = Guid.NewGuid(),
                 NewSkills = interestDto.NewSkills,
                 SkillsToRemove = interestDto.SkillsToRemove,
                 UserId = userId,
                 LinkName = "hasInterest"
-            }).ConfigureAwait(false);
+            };
+            await _session.SendLocal(request).ConfigureAwait(false);
 
-            return Ok();
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
         }
     }
 }

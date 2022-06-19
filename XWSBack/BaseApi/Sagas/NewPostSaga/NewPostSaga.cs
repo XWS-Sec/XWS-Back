@@ -6,6 +6,7 @@ using BaseApi.Messages.Timeouts;
 using BaseApi.Model.Mongo;
 using BaseApi.Services.PictureServices;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using NServiceBus;
 using Posts.Messages;
 using Users.Graph.Messages.Follow;
@@ -29,9 +30,10 @@ namespace BaseApi.Sagas.NewPostSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NewPostSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginNewPostRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<NewPostResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginNewPostRequest>(m => m.CorrelationId)
+                .ToMessage<NewPostResponse>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginNewPostRequest message, IMessageHandlerContext context)
@@ -86,9 +88,10 @@ namespace BaseApi.Sagas.NewPostSaga
 
             await context.SendLocal(new StandardNotification()
             {
-                Message = $"Successfully created a new post with id {Data.PostId}",
+                Message = JsonConvert.SerializeObject(message.Post),
                 IsSuccessful = true,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId,
             }).ConfigureAwait(false);
 
             await context.Send(new GetFollowStatsRequest()
@@ -136,7 +139,8 @@ namespace BaseApi.Sagas.NewPostSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

@@ -28,9 +28,10 @@ namespace BaseApi.Sagas.AddMessageSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AddMessageSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginAddMessageRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<AddMessageResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginAddMessageRequest>(m => m.CorrelationId)
+                .ToMessage<AddMessageResponse>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginAddMessageRequest message, IMessageHandlerContext context)
@@ -69,7 +70,8 @@ namespace BaseApi.Sagas.AddMessageSaga
                 Message = Data.Message,
                 DateCreated = Data.DateCreated,
                 ReceiverId = Data.ReceiverId,
-                SenderId = Data.SenderId
+                SenderId = Data.SenderId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -86,6 +88,18 @@ namespace BaseApi.Sagas.AddMessageSaga
             if (!message.Following.Contains(Data.ReceiverId) || !message.Followers.Contains(Data.ReceiverId))
             {
                 await FailSaga(context, "Users do not follow each other").ConfigureAwait(false);
+                return;
+            }
+
+            if (message.Blocked.Contains(Data.ReceiverId))
+            {
+                await FailSaga(context, "The user is blocked").ConfigureAwait(false);
+                return;
+            }
+
+            if (message.BlockedFrom.Contains(Data.ReceiverId))
+            {
+                await FailSaga(context, "The user is blocking you").ConfigureAwait(false);
                 return;
             }
 
@@ -144,7 +158,8 @@ namespace BaseApi.Sagas.AddMessageSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.SenderId
+                UserId = Data.SenderId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
 
             MarkAsComplete();

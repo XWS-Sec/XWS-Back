@@ -14,8 +14,6 @@ namespace BaseApi.Dto.Users
 
         public string Surname { get; set; }
 
-        public bool IsPrivate { get; set; }
-
         [EmailAddress]
         public string Email { get; set; }
 

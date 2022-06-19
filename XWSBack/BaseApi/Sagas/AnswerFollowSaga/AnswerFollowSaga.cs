@@ -24,8 +24,9 @@ namespace BaseApi.Sagas.AnswerFollowSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AnswerFollowSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginAnswerFollowRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<AnswerFollowResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginAnswerFollowRequest>(m => m.CorrelationId)
+                .ToMessage<AnswerFollowResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginAnswerFollowRequest message, IMessageHandlerContext context)
@@ -74,7 +75,8 @@ namespace BaseApi.Sagas.AnswerFollowSaga
             {
                 Message = $"Successfully {(Data.IsAccepted ? "accepted!" : "rejected!")}",
                 IsSuccessful = true,
-                UserId = Data.ObservedId
+                UserId = Data.ObservedId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
 
             await context.SendLocal(new StandardNotification()
@@ -118,7 +120,8 @@ namespace BaseApi.Sagas.AnswerFollowSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.ObservedId
+                UserId = Data.ObservedId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

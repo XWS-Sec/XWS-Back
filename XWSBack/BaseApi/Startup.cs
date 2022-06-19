@@ -2,10 +2,16 @@ using System;
 using System.IO;
 using System.Linq;
 using BaseApi.Hubs;
+using BaseApi.Middleware;
 using BaseApi.Model.Mongo;
+using BaseApi.Services.ConfigurationContracts;
 using BaseApi.Services.Extensions;
+using BaseApi.Services.PasswordlessSettings;
+using BaseApi.Services.TokenProvider;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -47,22 +53,15 @@ namespace BaseApi
                 {
                     options.Password.RequireDigit = true;
                     options.Password.RequireNonAlphanumeric = false;
-                    options.Password.RequiredLength = 6;
+                    options.Password.RequiredLength = 8;
                     options.Password.RequireUppercase = false;
                     options.Password.RequireLowercase = false;
                     options.User.RequireUniqueEmail = true;
-                })
+                }).AddDefaultTokenProviders()
+                .AddTokenProvider<NPTokenProvider<User>>("NPTokenProvider")
                 .AddMongoDbStores<User, Role, Guid>(mongoConnectionString, "Users");
 
             services.AddAutoMapper(typeof(Startup));
-
-            var uri = Environment.GetEnvironmentVariable("NEO4J_URI") ?? "bolt://localhost:7687";
-            var user = Environment.GetEnvironmentVariable("NEO4J_USER") ?? "neo4j";
-            var pass = Environment.GetEnvironmentVariable("NEO4J_PASS") ?? "neo4j";
-            var graphClient = new BoltGraphClient(new Uri(uri), user, pass);
-            graphClient.ConnectAsync();
-
-            services.AddSingleton<IGraphClient, BoltGraphClient>(s => graphClient);
 
             var allServices = typeof(ImageExtensions).Assembly
                 .GetTypes()
@@ -86,6 +85,20 @@ namespace BaseApi
                     .AllowAnyHeader()
                     .SetIsOriginAllowed(_ => true);
             }));
+
+            services.AddSingleton(new SendGridContract());
+
+            services.AddSingleton(new FacebookAuthSettings());
+            services.AddHttpClient();
+
+            services.AddMemoryCache();
+
+            services.AddSingleton<MemoryCacheEntryOptions>(x => new MemoryCacheEntryOptions()
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.AddHours(1),
+                Priority = CacheItemPriority.High,
+                SlidingExpiration = TimeSpan.FromHours(1),
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -106,6 +119,8 @@ namespace BaseApi
             app.UseAuthentication();
             
             app.UseCors("CorsPolicy");
+
+            app.UseMiddleware<AntiXssMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

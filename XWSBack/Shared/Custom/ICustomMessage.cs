@@ -1,7 +1,8 @@
-﻿namespace Shared.Custom
+﻿using System;
+
+namespace Shared.Custom
 {
     public interface ICustomMessage
     {
-        
     }
 }

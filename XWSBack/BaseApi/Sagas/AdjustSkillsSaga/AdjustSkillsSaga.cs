@@ -24,7 +24,8 @@ namespace BaseApi.Sagas.AdjustSkillsSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AdjustSkillsSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginAdjustSkillsRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginAdjustSkillsRequest>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginAdjustSkillsRequest message, IMessageHandlerContext context)
@@ -65,7 +66,8 @@ namespace BaseApi.Sagas.AdjustSkillsSaga
             {
                 Message = $"Successful adjusting of {(Data.LinkName.EndsWith("Interest") ? "interests" : "skills")}!",
                 UserId = Data.UserId,
-                IsSuccessful = true
+                IsSuccessful = true,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -102,7 +104,8 @@ namespace BaseApi.Sagas.AdjustSkillsSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

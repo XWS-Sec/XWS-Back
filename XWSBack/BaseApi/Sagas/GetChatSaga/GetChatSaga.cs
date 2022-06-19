@@ -32,9 +32,10 @@ namespace BaseApi.Sagas.GetChatSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetChatSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginGetChatRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetFollowStatsResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<GetChatResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginGetChatRequest>(m => m.CorrelationId)
+                .ToMessage<GetFollowStatsResponse>(m => m.CorrelationId)
+                .ToMessage<GetChatResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginGetChatRequest message, IMessageHandlerContext context)
@@ -75,6 +76,18 @@ namespace BaseApi.Sagas.GetChatSaga
                 return;
             }
 
+            if (message.Blocked.Contains(Data.OtherUserId))
+            {
+                await FailSaga(context, "You are blocking the other user");
+                return;
+            }
+
+            if (message.BlockedFrom.Contains(Data.OtherUserId))
+            {
+                await FailSaga(context, "The other user is blocking you");
+                return;
+            }
+            
             await context.Send(new GetChatRequest()
             {
                 Page = Data.Page,
@@ -96,7 +109,8 @@ namespace BaseApi.Sagas.GetChatSaga
             {
                 Messages = _mapper.Map<List<MessageNotificationDto>>(message.Messages),
                 UserId = Data.UserId,
-                OtherUserId = Data.OtherUserId
+                OtherUserId = Data.OtherUserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -112,7 +126,8 @@ namespace BaseApi.Sagas.GetChatSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

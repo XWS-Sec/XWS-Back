@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Chats.Messages;
+using JobOffers.Messages;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
@@ -77,13 +78,23 @@ namespace BaseApi
                     routing.RouteToEndpoint(typeof(UnfollowRequest), EndpointInstances.UserGraphHandlers);
                     routing.RouteToEndpoint(typeof(AdjustSkillsRequest), EndpointInstances.UserGraphHandlers);
                     routing.RouteToEndpoint(typeof(GetSkillsRequest), EndpointInstances.UserGraphHandlers);
+                    routing.RouteToEndpoint(typeof(BlockRequest), EndpointInstances.UserGraphHandlers);
+                    routing.RouteToEndpoint(typeof(UnblockRequest), EndpointInstances.UserGraphHandlers);
+                    routing.RouteToEndpoint(typeof(RecommendNewLinksRequest), EndpointInstances.UserGraphHandlers);
                     
                     routing.RouteToEndpoint(typeof(NewPostRequest), EndpointInstances.PostHandlers);
                     routing.RouteToEndpoint(typeof(EditPostRequest), EndpointInstances.PostHandlers);
                     routing.RouteToEndpoint(typeof(GetPostsRequest), EndpointInstances.PostHandlers);
+                    routing.RouteToEndpoint(typeof(CommentRequest), EndpointInstances.PostHandlers);
+                    routing.RouteToEndpoint(typeof(GetUserByPostRequest), EndpointInstances.PostHandlers);
+                    routing.RouteToEndpoint(typeof(LikeDislikeRequest), EndpointInstances.PostHandlers);
                     
                     routing.RouteToEndpoint(typeof(AddMessageRequest), EndpointInstances.ChatHandlers);
                     routing.RouteToEndpoint(typeof(GetChatRequest), EndpointInstances.ChatHandlers);
+                    
+                    routing.RouteToEndpoint(typeof(CreateCompanyRequest), EndpointInstances.JobOffersHandlers);
+                    routing.RouteToEndpoint(typeof(PublishNewJobOfferRequest), EndpointInstances.JobOffersHandlers);
+                    routing.RouteToEndpoint(typeof(GetBasicJobOffersRequest), EndpointInstances.JobOffersHandlers);
 
                     return endpointConfig;
                 });

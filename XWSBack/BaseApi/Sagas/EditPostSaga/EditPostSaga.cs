@@ -27,8 +27,9 @@ namespace BaseApi.Sagas.EditPostSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EditPostSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginEditPostRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<EditPostResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginEditPostRequest>(m => m.CorrelationId)
+                .ToMessage<EditPostResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginEditPostRequest message, IMessageHandlerContext context)
@@ -94,7 +95,8 @@ namespace BaseApi.Sagas.EditPostSaga
             {
                 Message = $"Successfully edited post {Data.PostId}",
                 IsSuccessful = true,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
@@ -105,7 +107,8 @@ namespace BaseApi.Sagas.EditPostSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.UserId
+                UserId = Data.UserId,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();

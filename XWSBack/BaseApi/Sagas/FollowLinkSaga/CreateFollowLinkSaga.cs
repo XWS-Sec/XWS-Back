@@ -25,8 +25,9 @@ namespace BaseApi.Sagas.FollowLinkSaga
         
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CreateFollowLinkSagaData> mapper)
         {
-            mapper.ConfigureMapping<BeginFollowLinkRequest>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
-            mapper.ConfigureMapping<CreateFollowLinkResponse>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
+            mapper.MapSaga(s => s.CorrelationId)
+                .ToMessage<BeginFollowLinkRequest>(m => m.CorrelationId)
+                .ToMessage<CreateFollowLinkResponse>(m => m.CorrelationId);
         }
 
         public async Task Handle(BeginFollowLinkRequest message, IMessageHandlerContext context)
@@ -70,9 +71,10 @@ namespace BaseApi.Sagas.FollowLinkSaga
 
             await context.SendLocal(new StandardNotification()
             {
-                Message = "Successful!",
+                Message = message.MessageToLog,
                 IsSuccessful = true,
-                UserId = Data.Sender
+                UserId = Data.Sender,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
 
             await context.SendLocal(new StandardNotification()
@@ -119,7 +121,8 @@ namespace BaseApi.Sagas.FollowLinkSaga
             await context.SendLocal(new StandardNotification()
             {
                 Message = reason,
-                UserId = Data.Sender
+                UserId = Data.Sender,
+                CorrelationId = Data.CorrelationId
             }).ConfigureAwait(false);
             
             MarkAsComplete();
