@@ -34,7 +34,9 @@ namespace BaseApi.Sagas.RecommendJobOffersSaga
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RecommendJobOffersSagaData> mapper)
         {
             mapper.MapSaga(s => s.CorrelationId)
-                .ToMessage<BeginJobOffersRecommendation>(m => m.CorrelationId);
+                .ToMessage<BeginJobOffersRecommendation>(m => m.CorrelationId)
+                .ToMessage<GetSkillsResponse>(m => m.CorrelationId)
+                .ToMessage<GetRecommendedJobOffersResponse>(m => m.CorrelationId);
         }
 
 
