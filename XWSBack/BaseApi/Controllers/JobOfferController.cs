@@ -5,6 +5,8 @@ using BaseApi.Controllers.Base;
 using BaseApi.CustomAttributes;
 using BaseApi.Dto.JobOffer;
 using BaseApi.Messages;
+using BaseApi.Model.Mongo;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using NServiceBus;
@@ -16,10 +18,12 @@ namespace BaseApi.Controllers
     public class JobOfferController : SyncController
     {
         private readonly IMessageSession _session;
+        private readonly UserManager<User> _userManager;
 
-        public JobOfferController(IMessageSession session, IMemoryCache cache) : base(cache)
+        public JobOfferController(UserManager<User> userManager, IMessageSession session, IMemoryCache cache) : base(cache)
         {
             _session = session;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -34,6 +38,26 @@ namespace BaseApi.Controllers
             var response = SyncResponse(request.CorrelationId);
 
             return ReturnBaseNotification(response);
+        }
+
+        [HttpGet("recommend")]
+        [TypeFilter(typeof(CustomAuthorizeAttribute))]
+        public async Task<IActionResult> GetRecommendations()
+        {
+            var userId = Guid.Parse(_userManager.GetUserId(User));
+
+            var request = new BeginJobOffersRecommendation()
+            {
+                CorrelationId = Guid.NewGuid(),
+                UserId = userId
+            };
+
+            await _session.SendLocal(request).ConfigureAwait(false);
+
+            var response = SyncResponse(request.CorrelationId);
+
+            return ReturnBaseNotification(response);
+
         }
 
         [HttpPost]
