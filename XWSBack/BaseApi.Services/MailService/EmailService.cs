@@ -15,12 +15,12 @@ namespace BaseApi.Services.MailService
         private readonly ILogger<EmailService> _logger;
 
         private const string VerificationTemplate = "d-ce89fa0a658b45b9bfd46ed0712e1cc8";
-        private const string VerificationLinkTemplate = "https://localhost:44322/api/Register/Confirm?userId={0}&token={1}";
+        private const string VerificationLinkTemplate = "http://localhost:7700/api/Register/Confirm?userId={0}&token={1}";
 
         private const string RecoveryTemplate = "d-da61904271ad475ead15b4663004dabc";
 
         private const string PasswordlessTemplate = "d-6bca0faa0d8f4425bf996adcdcb9472c";
-        private const string PasswordlessLoginTemplate = "https://localhost:44322/api/login/our/passwordless/{0}/{1}";
+        private const string PasswordlessLoginTemplate = "http://localhost:7700/api/login/our/passwordless/{0}/{1}";
         
         private const string SuccessfulMail = "Mail sent to mail address : {0}";
         private const string FailedMail = "Couldn't send email to mail address : {0}";
