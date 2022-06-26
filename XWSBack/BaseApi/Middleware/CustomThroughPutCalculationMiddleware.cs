@@ -22,14 +22,14 @@ namespace BaseApi.Middleware
         {
             await _next.Invoke(context);
 
-            using var memoryStream = new MemoryStream();
-            await memoryStream.CopyToAsync(context.Response.Body);
+            // using var memoryStream = new MemoryStream();
+            // await context.Response.Body.CopyToAsync(memoryStream);
+            //
+            // using var memoryStreamBody = new MemoryStream();
+            // await context.Request.Body.CopyToAsync(memoryStreamBody);
 
-            using var memoryStreamBody = new MemoryStream();
-            await memoryStreamBody.CopyToAsync(context.Request.Body);
-
-            _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutRequestCounter, memoryStreamBody.Length + context.Request.Headers.ToString()?.Length ?? 0);
-            _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutResponseCounter, memoryStream.Length + context.Response.Headers.ToString()?.Length ?? 0);
+            // _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutRequestCounter, memoryStreamBody.Length + context.Request.Headers.ToString()?.Length ?? 0);
+            // _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutResponseCounter, memoryStream.Length + context.Response.Headers.ToString()?.Length ?? 0);
         }
     }
 }
