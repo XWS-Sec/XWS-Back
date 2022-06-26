@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using App.Metrics;
 using Microsoft.AspNetCore.Http;
+using SendGrid;
 using Shared.CustomCounters;
 
 namespace BaseApi.Middleware
@@ -20,16 +23,19 @@ namespace BaseApi.Middleware
         
         public async Task Invoke(HttpContext context)
         {
+            var originalStream = context.Response.Body;
+
+            using var memoryStream = new MemoryStream();
+            context.Response.Body = memoryStream;
+            
             await _next.Invoke(context);
 
-            // using var memoryStream = new MemoryStream();
-            // await context.Response.Body.CopyToAsync(memoryStream);
-            //
-            // using var memoryStreamBody = new MemoryStream();
-            // await context.Request.Body.CopyToAsync(memoryStreamBody);
-
-            // _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutRequestCounter, memoryStreamBody.Length + context.Request.Headers.ToString()?.Length ?? 0);
-            // _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutResponseCounter, memoryStream.Length + context.Response.Headers.ToString()?.Length ?? 0);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            await memoryStream.CopyToAsync(originalStream);
+            context.Response.Body = originalStream;
+            
+            _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutRequestCounter, context.Request.ContentLength + context.Request.Headers.ToString()?.Length ?? 0);
+            _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutResponseCounter, memoryStream.Length + context.Response.Headers.ToString()?.Length ?? 0);
         }
     }
 }
