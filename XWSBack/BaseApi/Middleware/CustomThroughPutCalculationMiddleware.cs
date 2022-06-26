@@ -25,7 +25,10 @@ namespace BaseApi.Middleware
             using var memoryStream = new MemoryStream();
             await memoryStream.CopyToAsync(context.Response.Body);
 
-            _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutRequestCounter, context.Request.Body.Length + context.Request.Headers.ToString()?.Length ?? 0);
+            using var memoryStreamBody = new MemoryStream();
+            await memoryStreamBody.CopyToAsync(context.Request.Body);
+
+            _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutRequestCounter, memoryStreamBody.Length + context.Request.Headers.ToString()?.Length ?? 0);
             _metrics.Measure.Counter.Increment(MetricRegistry.ThroughPutResponseCounter, memoryStream.Length + context.Response.Headers.ToString()?.Length ?? 0);
         }
     }
