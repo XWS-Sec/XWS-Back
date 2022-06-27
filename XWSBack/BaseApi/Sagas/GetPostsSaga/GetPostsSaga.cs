@@ -54,16 +54,21 @@ namespace BaseApi.Sagas.GetPostsSaga
                 await FailSaga(context, validationStatus).ConfigureAwait(false);
                 return;
             }
-
-            if (message.RequestedUserId != Guid.Empty && Data.RequestedUserId == Data.UserId)
+            
+            if (message.RequestedUserId != Guid.Empty)
             {
-                await context.Send(new GetPostsRequest()
+                var user = await _userManager.FindByIdAsync(message.RequestedUserId.ToString());
+
+                if (message.RequestedUserId == message.UserId || !user.IsPrivate)
                 {
-                    Page = Data.Page,
-                    CorrelationId = Data.CorrelationId,
-                    PostsOwners = new List<Guid>() { Data.RequestedUserId }
-                }).ConfigureAwait(false);
-                return;
+                    await context.Send(new GetPostsRequest()
+                    {
+                        Page = Data.Page,
+                        CorrelationId = Data.CorrelationId,
+                        PostsOwners = new List<Guid>() { Data.RequestedUserId }
+                    }).ConfigureAwait(false);
+                    return;
+                }
             }
 
             await context.Send(new GetFollowStatsRequest()
