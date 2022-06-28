@@ -176,5 +176,6 @@ services:
       - UsersGraphHandlersMongoDb=mongodb://mongo:27017
       - XWS_ENABLE_TRACE=false
       - InfluxDBUri=http://influxdb:8086
+      - NEO4J_URI=bolt://host.docker.internal:7687
 
 
